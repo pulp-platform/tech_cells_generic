@@ -12,7 +12,7 @@ tech_cells_rtl:
     pulp_buffer.sv,
     pulp_level_shifter_in.sv,
     pulp_level_shifter_in_clamp.sv,
-    pulp_level_shifter_out.sv
+    pulp_level_shifter_out.sv,
     pulp_level_shifter_out_clamp.sv,
     pulp_clock_and2.sv,
     cluster_clock_buffer.sv,
@@ -26,6 +26,8 @@ tech_cells_rtl:
     cluster_clock_and2.sv,
     pulp_clock_gating_async.sv,
     pulp_power_gating.sv,
+    generic_rom.sv,
+    generic_memory.sv,
   ]
 
 tech_cells_fpga:
