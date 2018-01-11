@@ -26,6 +26,8 @@ tech_cells_rtl:
     cluster_clock_and2.sv,
     pulp_clock_gating_async.sv,
     pulp_power_gating.sv,
+    generic_rom.sv,
+    generic_memory.sv,
   ]
 
 tech_cells_fpga:
