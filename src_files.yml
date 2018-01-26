@@ -28,7 +28,6 @@ tech_cells_rtl:
     pulp_power_gating.sv,
     generic_rom.sv,
     generic_memory.sv,
-    pad_frame.sv,
     pad_functional.sv,
   ]
 
