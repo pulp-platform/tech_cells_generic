@@ -23,6 +23,7 @@ tech_cells_rtl:
     cluster_level_shifter_in_clamp.sv,
     cluster_level_shifter_out.sv,
     cluster_level_shifter_out_clamp.sv,
+    cluster_level_shifter_inout.sv,
     cluster_clock_and2.sv,
     pulp_clock_gating_async.sv,
     pulp_power_gating.sv,
