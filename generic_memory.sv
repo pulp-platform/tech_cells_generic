@@ -34,39 +34,30 @@ module generic_memory
    genvar                         i,j;
 
    generate
-      for (i=0; i<BE_WIDTH; i++)
-        begin
-           for (j=0; j<8; j++)
-             begin
-                assign M[i*8+j] = BEN[i];
-             end
-        end
+      for (i=0; i<BE_WIDTH; i++) begin
+         for (j=0; j<8; j++) begin
+            assign M[i*8+j] = BEN[i];
+         end
+      end
    endgenerate
 
    generate
-      for (i=0; i < DATA_WIDTH ; i++)
-        begin
-           always @ (posedge CLK)
-             begin
-                if ( INITN == 1'b1 )
-                  begin
-                     if ( CEN == 1'b0 )
-                       begin
-                          if ( WEN == 1'b0 )
-                            begin
-                               if ( M[i] == 1'b0 )
-                                 begin
-                                    MEM[A][i] <= D[i];
-                                 end
-                            end
-                          else if(WEN == 1'b1)
-                            begin
-                               Q[i] <= MEM[A][i];
-                            end
-                       end
+      for (i=0; i < DATA_WIDTH ; i++) begin
+         always @ (posedge CLK) begin
+            if ( INITN == 1'b1 ) begin
+               if ( CEN == 1'b0 ) begin
+                  if ( WEN == 1'b0 ) begin
+                     if ( M[i] == 1'b0 ) begin
+                        MEM[A][i] <= D[i];
+                     end
                   end
-             end
-        end
+                  else if(WEN == 1'b1) begin
+                     Q[i] <= MEM[A][i];
+                  end
+               end
+            end
+         end
+      end
    endgenerate
 
 endmodule

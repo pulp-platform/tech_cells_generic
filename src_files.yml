@@ -59,4 +59,7 @@ tech_cells_fpga:
     cluster_clock_and2.sv,
     pulp_clock_gating_async.sv,
     pulp_power_gating.sv,
+    pad_functional_xilinx.sv,
+    xilinx_memory.sv,
+    xilinx_pll.sv
   ]
