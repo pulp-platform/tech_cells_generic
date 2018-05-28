@@ -15,6 +15,7 @@ tech_cells_rtl:
     pulp_level_shifter_out.sv,
     pulp_level_shifter_out_clamp.sv,
     pulp_clock_and2.sv,
+    pulp_sync.sv,
     cluster_clock_buffer.sv,
     cluster_clock_inverter.sv,
     cluster_clock_mux2.sv,
