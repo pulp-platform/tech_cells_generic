@@ -14,8 +14,6 @@ tech_cells_rtl:
     src/pulp_level_shifter_in_clamp.sv,
     src/pulp_level_shifter_out.sv,
     src/pulp_level_shifter_out_clamp.sv,
-    src/pulp_level_shifter_inout.sv,
-    src/pulp_isolation_0.sv,
     src/pulp_clock_and2.sv,
     src/cluster_clock_buffer.sv,
     src/cluster_clock_inverter.sv,
@@ -25,14 +23,18 @@ tech_cells_rtl:
     src/cluster_level_shifter_in_clamp.sv,
     src/cluster_level_shifter_out.sv,
     src/cluster_level_shifter_out_clamp.sv,
-    src/cluster_level_shifter_inout.sv,
     src/cluster_clock_and2.sv,
-    src/pulp_clock_gating_async.sv,
     src/pulp_power_gating.sv,
     src/generic_rom.sv,
     src/generic_memory.sv,
     src/pad_functional.sv,
   ]
+
+tech_cells_rtl_synth:
+  files: [
+   pulp_clock_gating_async.sv,
+   pulp_sync.sv,
+]
 
 tech_cells_fpga:
   targets: [
