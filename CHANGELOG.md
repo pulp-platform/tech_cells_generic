@@ -6,11 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 0.1.0 - 2018-09-12
+## 0.1.1 - 2018-09-12
 ### Changed
 - Polish release
 - Keep Changelog
 - Move to sources subfolder
 
+## 0.1.0 - 2018-09-12
 ### Added
 - Initial commit.
