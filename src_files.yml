@@ -9,6 +9,7 @@ tech_cells_rtl:
     src/pulp_clock_buffer.sv,
     src/pulp_clock_inverter.sv,
     src/pulp_clock_xor2.sv,
+    src/pulp_clock_delay.sv,
     src/pulp_buffer.sv,
     src/pulp_level_shifter_in.sv,
     src/pulp_level_shifter_in_clamp.sv,
@@ -32,8 +33,8 @@ tech_cells_rtl:
 
 tech_cells_rtl_synth:
   files: [
-   pulp_clock_gating_async.sv,
-   pulp_sync.sv,
+   src/pulp_clock_gating_async.sv,
+   isrc/pulp_sync.sv,
 ]
 
 tech_cells_fpga:
@@ -47,6 +48,7 @@ tech_cells_fpga:
     src/pulp_clock_buffer.sv,
     src/pulp_clock_inverter.sv,
     src/pulp_clock_xor2.sv,
+    src/pulp_clock_delay.sv,
     src/pulp_buffer.sv,
     src/pulp_level_shifter_in.sv,
     src/pulp_level_shifter_in_clamp.sv,
