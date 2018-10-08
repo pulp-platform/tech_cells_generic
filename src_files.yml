@@ -34,7 +34,7 @@ tech_cells_rtl:
 tech_cells_rtl_synth:
   files: [
    src/pulp_clock_gating_async.sv,
-   isrc/pulp_sync.sv,
+   src/pulp_sync.sv,
 ]
 
 tech_cells_fpga:
