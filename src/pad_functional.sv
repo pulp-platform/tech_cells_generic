@@ -15,7 +15,7 @@ module pad_functional_pd
    input  logic             I,
    output logic             O,
    input  logic             PEN,
-   inout  logic             PAD
+   inout  wire              PAD
 );
 
 /*
@@ -52,7 +52,7 @@ module pad_functional_pu
    input  logic             I,
    output logic             O,
    input  logic             PEN,
-   inout  logic             PAD
+   inout  wire              PAD
 );
 
 /*
