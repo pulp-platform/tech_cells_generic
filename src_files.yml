@@ -33,7 +33,6 @@ tech_cells_rtl:
 
 tech_cells_rtl_synth:
   files: [
-   src/pulp_clock_gating_async.sv,
    src/pulp_sync.sv,
 ]
 
@@ -64,6 +63,5 @@ tech_cells_fpga:
     src/cluster_level_shifter_out.sv,
     src/cluster_level_shifter_out_clamp.sv,
     src/cluster_clock_and2.sv,
-    src/pulp_clock_gating_async.sv,
     src/pulp_power_gating.sv,
   ]
