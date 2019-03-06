@@ -29,6 +29,7 @@ tech_cells_rtl:
     src/generic_rom.sv,
     src/generic_memory.sv,
     src/pad_functional.sv,
+    src/pulp_clock_gating_async.sv,
   ]
 
 tech_cells_rtl_synth:
