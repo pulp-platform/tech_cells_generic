@@ -65,4 +65,5 @@ tech_cells_fpga:
     src/cluster_level_shifter_out_clamp.sv,
     src/cluster_clock_and2.sv,
     src/pulp_power_gating.sv,
+    src/pulp_clock_gating_async.sv,
   ]
