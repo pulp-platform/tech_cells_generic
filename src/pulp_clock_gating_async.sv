@@ -18,29 +18,19 @@ module pulp_clock_gating_async
     output logic clk_o
 );
 
-    logic     r_sync_0;
-    logic     r_sync_1;
+    pulp_sync #( .STAGES(2) )  i_pulp_sync
+    (
+        .clk_i    ( clk_i      ),
+        .rstn_i   ( rstn_i     ),
+        .serial_i ( en_async_i ),
+        .serial_o ( en_ack_o   )
+    );
 
-    assign en_ack_o = r_sync_1;
-    
-    always_ff @ (posedge clk_i or negedge rstn_i)
-    begin
-        if(~rstn_i)
-        begin
-            r_sync_0 <= 1'b0;
-            r_sync_1 <= 1'b0;
-        end
-        else
-        begin
-            r_sync_0 <= en_async_i;
-            r_sync_1 <= r_sync_0;
-        end
-    end
 
     pulp_clock_gating i_clk_gate
     (
         .clk_i    ( clk_i     ),
-        .en_i     ( r_sync_1  ),
+        .en_i     ( en_ack_o  ),
         .test_en_i( test_en_i ),
         .clk_o    ( clk_o     )
     );
