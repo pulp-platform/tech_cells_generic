@@ -32,5 +32,13 @@ module pulp_sync
     end
 
     assign serial_o  = r_bf_synch[STAGES-1];
+
+    `ifndef SYNTHESIS
+    initial
+    begin
+        if( (STAGES<2 ) || (STAGES > 4) )
+            $fatal(" NUM stages in outside the 2--4 range (%d). Error detected in %m", STAGES);
+    end
+    `endif
    
 endmodule
