@@ -14,7 +14,6 @@ module pulp_clock_and2
     input  logic clk1_i,
     output logic clk_o
 );
-
-   assign clk_o = clk0_i & clk1_i;
+   and clk_and2_i (clk_o, clk0_i, clk1_i);
 
 endmodule
