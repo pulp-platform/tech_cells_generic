@@ -9,11 +9,11 @@
 // specific language governing permissions and limitations under the License.
 
 module pulp_clock_buffer
-  (
+(
    input  logic clk_i,
    output logic clk_o
-   );
-   
-   assign clk_o = clk_i;
+);
+  
+   buf clk_buf_i (clk_o, clk_i ); 
    
 endmodule
