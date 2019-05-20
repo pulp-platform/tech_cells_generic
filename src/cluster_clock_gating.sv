@@ -16,7 +16,7 @@ module cluster_clock_gating
    output logic clk_o
    );
 
-   logic 	clk_en;
+   logic 	clk_en /* verilator clock_enable */;
    
    always_latch
      begin
