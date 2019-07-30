@@ -9,6 +9,9 @@
 // specific language governing permissions and limitations under the License.
 
 module pulp_clock_gating_async
+#(
+    parameter int unsigned STAGES = 2
+)
 (
     input  logic clk_i,
     input  logic rstn_i,
@@ -18,7 +21,7 @@ module pulp_clock_gating_async
     output logic clk_o
 );
 
-    pulp_sync #( .STAGES(2) )  i_pulp_sync
+    pulp_sync #( .STAGES(STAGES) )  i_pulp_sync
     (
         .clk_i    ( clk_i      ),
         .rstn_i   ( rstn_i     ),
