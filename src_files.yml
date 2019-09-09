@@ -1,6 +1,7 @@
 tech_cells_rtl:
   flags: [
     skip_synthesis,
+    keep_for_jg
   ]
   files: [
     src/cluster_clock_gating.sv,
