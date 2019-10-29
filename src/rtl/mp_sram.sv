@@ -56,7 +56,7 @@ always_comb begin
     end else if (inject_d_biterror_i) begin
       // flip two bits somewhere in the word, this might just flip one if the random numbers turn out to be
       // the same
-      wdata_erro[i] = (1'b1 << $urandom_range(DataWidth, 0)) | (1'b1 << $urandom_range(DataWidth, 0));
+      wdata_error[i] = (1'b1 << $urandom_range(DataWidth, 0)) | (1'b1 << $urandom_range(DataWidth, 0));
     end
   end
 end
