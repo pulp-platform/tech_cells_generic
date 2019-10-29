@@ -35,14 +35,14 @@ module mp_sram #(
 );
 
 localparam DataWidthAligned = ((DataWidth+7)/8)*8;
-localparam BeWidthAlgined   = (((DataWidth+7)/8+7)/8)*8;
+localparam BeWidthAligned   = (((DataWidth+7)/8+7)/8)*8;
 
 logic [DataWidthAligned-1:0] mem_q [NumWords-1:0];
 
 logic [1:0][DataWidth-1:0]         wdata_error;
 
 logic [1:0][DataWidthAligned-1:0]  wdata_aligned;
-logic [1:0][BeWidthAlgined-1:0]    be_aligned;
+logic [1:0][BeWidthAligned-1:0]    be_aligned;
 logic [1:0][DataWidthAligned-1:0]  rdata_q;
 logic [1:0][DataWidthAligned-1:0]  rdata_qq;
 
@@ -70,7 +70,7 @@ assign wdata_error = '0;
       wdata_aligned[i]                    = '0;
       be_aligned[i]                       = '0;
       wdata_aligned[i][DataWidth-1:0]     = wdata_i[i];
-      be_aligned[i][BeWidthAlgined-1:0]   = be_i[i];
+      be_aligned[i][BeWidthAligned-1:0]   = be_i[i];
 
       rdata_o[i] = rdata_qq[i][DataWidth-1:0];
     end
@@ -96,7 +96,7 @@ assign wdata_error = '0;
     for (int i = 0; i < NrPorts; i++) begin
       if (req_i[i]) begin
         if (we_i[i]) begin
-          for (int j = 0; j < $size(be_aligned); j++) begin
+          for (int j = 0; j < BeWidthAligned; j++) begin
             if (be_aligned[i][j]) mem_q[addr_i[i]][j*8 +: 8] <= wdata_aligned[i][j*8 +: 8];
           end
         end else begin

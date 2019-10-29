@@ -16,6 +16,7 @@ sources:
       - src/rtl/tc_clk.sv
       - src/rtl/sp_sram.sv
       - src/rtl/dp_sram.sv
+      - src/rtl/mp_sram.sv
 
   - target: not(synthesis)
     files:

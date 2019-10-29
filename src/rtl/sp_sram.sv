@@ -40,16 +40,16 @@ module sp_sram #(
     .SimInit  (SimInit),
     .NrPorts  (1)
   ) i_mp_sram (
-    .clk_i
-    .rst_ni
-    .req_i
-    .we_i
-    .addr_i
-    .wdata_i
-    .be_i
-    .rdata_o
-    .inject_s_biterror_i
+    .clk_i,
+    .rst_ni,
+    .req_i,
+    .we_i,
+    .addr_i,
+    .wdata_i,
+    .be_i,
+    .rdata_o,
+    .inject_s_biterror_i,
     .inject_d_biterror_i
   );
 
-endmodule : sram
+endmodule : sp_sram
