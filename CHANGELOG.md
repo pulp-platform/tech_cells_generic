@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.1.6 - 2019-11-18
+### Added
+- Add Readme
+- Add Contribution Guide
+
+### Changed
+- Move modules of similar topic to a single file. This makes it easier to add new modules.
+- Move separation between `cluster` and `pulp` to `deprecated` folder. There should be a single solution to a tech-cell.
+
 ## 0.1.1 - 2018-09-12
 ### Changed
 - Polish release
