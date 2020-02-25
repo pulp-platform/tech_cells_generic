@@ -10,10 +10,10 @@
 //
 // Author: Wolfgang Roenninger <wroennin@ethz.ch>, ETH Zurich
 //
-// Description: Xilinx implementation using the xpm constructs for `tc_sram`
-//              Make sure that Vivado can detect the xpm macros by issuing
+// Description: Xilinx implementation using the XPM constructs for `tc_sram`
+//              Make sure that Vivado can detect the XPM macros by issuing
 //              the `auto_detect_xpm` or `set_property XPM_LIBRARIES XPM_MEMORY [current_project]`
-//              command.
+//              command. Currently the Xilinx macros are always initialized to all zero!
 //
 module tc_sram #(
   parameter int unsigned NoWords      = 32'd1024, // Number of Words in data array
@@ -21,7 +21,7 @@ module tc_sram #(
   parameter int unsigned ByteWidth    = 32'd8,    // Width of a data byte
   parameter int unsigned NoPorts      = 32'd2,    // Number of read and write ports
   parameter int unsigned Latency      = 32'd1,    // Latency when the read data is available
-  parameter string       SimInit      = "none",   // Simulation initialization
+  parameter string       SimInit      = "zeros",  // Simulation initialization, fixed to zero here!
   parameter bit          PrintSimCfg  = 1'b0,     // Print configuration
   // DEPENDENT PARAMETERS, DO NOT OVERWRITE!
   parameter int unsigned AddrWidth = (NoWords > 32'd1) ? $clog2(NoWords) : 32'd1,
@@ -51,11 +51,12 @@ module tc_sram #(
   data_aligned_t [NoPorts-1:0] rdata_al;
   be_t           [NoPorts-1:0] we;
 
-  // pad with 0 to next byte for inferable macro below
+  // pad with 0 to next byte for inferable macro below, as the macro wants
+  // READ_DATA_WIDTH_A be a multiple of BYTE_WRITE_WIDTH_A
   always_comb begin : p_align
-    wdata_aligned = '0;
+    wdata_al = '0;
     for (int unsigned i = 0; i < NoPorts; i++) begin
-      wdata_al[DataWidth-1:0] = wdata_i;
+      wdata_al[i][DataWidth-1:0] = wdata_i[i];
     end
   end
 
@@ -75,14 +76,14 @@ module tc_sram #(
       .BYTE_WRITE_WIDTH_A  ( ByteWidth        ), // DECIMAL
       .ECC_MODE            ( "no_ecc"         ), // String
       .MEMORY_INIT_FILE    ( "none"           ), // String
-      .MEMORY_INIT_PARAM   ( "0"              ), // String  TODO
+      .MEMORY_INIT_PARAM   ( "0"              ), // String
       .MEMORY_OPTIMIZATION ( "true"           ), // String
       .MEMORY_PRIMITIVE    ( "auto"           ), // String
       .MEMORY_SIZE         ( Size             ), // DECIMAL in bit!
       .MESSAGE_CONTROL     ( 0                ), // DECIMAL
       .READ_DATA_WIDTH_A   ( DataWidthAligned ), // DECIMAL
       .READ_LATENCY_A      ( Latency          ), // DECIMAL
-      .READ_RESET_VALUE_A  ( "0"              ), // String  TODO
+      .READ_RESET_VALUE_A  ( "0"              ), // String
       .USE_MEM_INIT        ( 1                ), // DECIMAL
       .WAKEUP_TIME         ( "disable_sleep"  ), // String
       .WRITE_DATA_WIDTH_A  ( DataWidthAligned ), // DECIMAL
@@ -114,7 +115,7 @@ module tc_sram #(
       .CLOCKING_MODE           ( "common_clock"   ), // String
       .ECC_MODE                ( "no_ecc"         ), // String
       .MEMORY_INIT_FILE        ( "none"           ), // String
-      .MEMORY_INIT_PARAM       ( "0"              ), // String  TODO
+      .MEMORY_INIT_PARAM       ( "0"              ), // String
       .MEMORY_OPTIMIZATION     ( "true"           ), // String
       .MEMORY_PRIMITIVE        ( "auto"           ), // String
       .MEMORY_SIZE             ( Size             ), // DECIMAL in bits!
@@ -123,8 +124,8 @@ module tc_sram #(
       .READ_DATA_WIDTH_B       ( DataWidthAligned ), // DECIMAL
       .READ_LATENCY_A          ( Latency          ), // DECIMAL
       .READ_LATENCY_B          ( Latency          ), // DECIMAL
-      .READ_RESET_VALUE_A      ( "0"              ), // String  TODO
-      .READ_RESET_VALUE_B      ( "0"              ), // String  TODO
+      .READ_RESET_VALUE_A      ( "0"              ), // String
+      .READ_RESET_VALUE_B      ( "0"              ), // String
       .USE_EMBEDDED_CONSTRAINT ( 0                ), // DECIMAL
       .USE_MEM_INIT            ( 1                ), // DECIMAL
       .WAKEUP_TIME             ( "disable_sleep"  ), // String
