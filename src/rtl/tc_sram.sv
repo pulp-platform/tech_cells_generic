@@ -40,8 +40,6 @@
 // - `wdata_i`: Write data, has to be valid on request
 // - `be_i`:    Byte enable, active high
 // - `rdata_o`: Read data, valid `Latency` cycles after a request with `we_i` low.
-//
-
 
 module tc_sram #(
   parameter int unsigned NoWords      = 32'd1024, // Number of Words in data array
@@ -125,7 +123,7 @@ module tc_sram #(
 
   // read data output assignment
   if (Latency == 32'd0) begin : gen_no_read_lat
-    for (genvar i = 0; i < NoPorts; i++) begin : gen_
+    for (genvar i = 0; i < NoPorts; i++) begin : gen_port
       assign rdata_o[i] = (req_i[i] && !we_i[i]) ? sram[addr_i[i]] : sram[r_addr_q[i]];
     end
   end else begin : gen_read_lat
@@ -144,7 +142,7 @@ module tc_sram #(
     always_ff @(posedge clk_i or negedge rst_ni) begin
       for (int unsigned i = 0; i < NoPorts; i++) begin
         for (int unsigned j = 0; j < Latency; j++) begin
-          if(~rst_ni) begin
+          if (!rst_ni) begin
             rdata_q[i][j] <= init_val[j];
           end else begin
             rdata_q[i][j] <= rdata_d[i][j];
@@ -194,6 +192,4 @@ module tc_sram #(
 `endif
 `endif
 // pragma translate_on
-
-
 endmodule
