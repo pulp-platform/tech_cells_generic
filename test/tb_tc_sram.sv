@@ -10,7 +10,6 @@
 //
 // Author: Wolfgang Roenninger <wroennin@ethz.ch>, ETH Zurich
 // Description: Testbench for the functional `*_sram` modules
-//
 
 module tb_tc_sram #(
   parameter int unsigned NoPorts   = 32'd2,
@@ -131,7 +130,6 @@ module tb_tc_sram #(
 
     forever begin
       @(posedge clk);
-
       // writes get latched at clock in golden model array
       for (int unsigned i = 0; i < NoPorts; i++) begin
         if (req[i] && we[i]) begin
