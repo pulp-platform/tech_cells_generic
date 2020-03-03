@@ -14,11 +14,12 @@
 //              Make sure that Vivado can detect the XPM macros by issuing
 //              the `auto_detect_xpm` or `set_property XPM_LIBRARIES XPM_MEMORY [current_project]`
 //              command. Currently the Xilinx macros are always initialized to all zero!
-//
+//              The behaviour, parameters and ports are described in the header of `rtl/tc_sram.sv`.
+
 module tc_sram #(
   parameter int unsigned NoWords      = 32'd1024, // Number of Words in data array
-  parameter int unsigned DataWidth    = 32'd128,  // Data signal width
-  parameter int unsigned ByteWidth    = 32'd8,    // Width of a data byte
+  parameter int unsigned DataWidth    = 32'd128,  // Data signal width (in bits)
+  parameter int unsigned ByteWidth    = 32'd8,    // Width of a data byte (in bits)
   parameter int unsigned NoPorts      = 32'd2,    // Number of read and write ports
   parameter int unsigned Latency      = 32'd1,    // Latency when the read data is available
   parameter string       SimInit      = "zeros",  // Simulation initialization, fixed to zero here!
@@ -90,18 +91,18 @@ module tc_sram #(
       .WRITE_MODE_A        ( "no_change"      )  // String
     ) i_xpm_memory_spram (
       .dbiterra ( /*not used*/ ), // 1-bit output: Status signal to indicate double biterror
-      .douta    ( rdata_o      ), // READ_DATA_WIDTH_A-bitoutput: Data output for port A
+      .douta    ( rdata_al[0]  ), // READ_DATA_WIDTH_A-bitoutput: Data output for port A
       .sbiterra ( /*not used*/ ), // 1-bit output: Status signal to indicate single biterror
-      .addra    ( addr_i       ), // ADDR_WIDTH_A-bit input: Address for port A
+      .addra    ( addr_i[0]    ), // ADDR_WIDTH_A-bit input: Address for port A
       .clka     ( clk_i        ), // 1-bit input: Clock signal for port A.
-      .dina     ( wdata_i      ), // WRITE_DATA_WIDTH_A-bitinput: Data input for port A
-      .ena      ( req_i        ), // 1-bit input: Memory enable signal for port A.
+      .dina     ( wdata_al[0]  ), // WRITE_DATA_WIDTH_A-bitinput: Data input for port A
+      .ena      ( req_i[0]     ), // 1-bit input: Memory enable signal for port A.
       .injectdbiterra ( 1'b0   ), // 1-bit input: Controls double biterror injection
       .injectsbiterra ( 1'b0   ), // 1-bit input: Controls single biterror injection
       .regcea   ( 1'b1         ), // 1-bit input: Clock Enable for the last register
       .rsta     ( ~rst_ni      ), // 1-bit input: Reset signal for the final port A output
-      .sleep    ( 1'b0         ), // 1-bit input: sleep signal to enable the dynamic power savie
-      .wea      ( we           )
+      .sleep    ( 1'b0         ), // 1-bit input: sleep signal to enable the dynamic power save
+      .wea      ( we[0]        )
     );
   end else if (NoPorts == 32'd2) begin : gen_2_ports
     // xpm_memory_tdpram: True Dual Port RAM
@@ -165,4 +166,47 @@ module tc_sram #(
   end else begin : gen_err_ports
     $fatal(1, "Not supported port parametrisation for NoPorts: %0d", NoPorts);
   end
+
+// Validate parameters.
+// pragma translate_off
+`ifndef VERILATOR
+`ifndef TARGET_SYNTHESYS
+  initial begin: p_assertions
+    assert (SimInit == "zeros") else $fatal(1, "The Xilinx `tc_sram` has fixed SimInit: zeros");
+    assert ($bits(addr_i)  == NumPorts * AddrWidth) else $fatal(1, "AddrWidth problem on `addr_i`");
+    assert ($bits(wdata_i) == NumPorts * DataWidth) else $fatal(1, "DataWidth problem on `wdata_i`");
+    assert ($bits(be_i)    == NumPorts * BeWidth)   else $fatal(1, "BeWidth   problem on `be_i`"   );
+    assert ($bits(rdata_o) == NumPorts * DataWidth) else $fatal(1, "DataWidth problem on `rdata_o`");
+    assert (NumWords  >= 32'd1) else $fatal(1, "NumWords has to be > 0");
+    assert (DataWidth >= 32'd1) else $fatal(1, "DataWidth has to be > 0");
+    assert (ByteWidth >= 32'd1) else $fatal(1, "ByteWidth has to be > 0");
+    assert (NumPorts  >= 32'd1) else $fatal(1, "The number of ports must be at least 1!");
+  end
+  initial begin: p_sim_hello
+    if (PrintSimCfg) begin
+      $display("#################################################################################");
+      $display("tc_sram functional instantiated with the configuration:"                          );
+      $display("Instance: %m"                                                                     );
+      $display("Number of ports   (dec): %0d", NumPorts                                           );
+      $display("Number of words   (dec): %0d", NumWords                                           );
+      $display("Address width     (dec): %0d", AddrWidth                                          );
+      $display("Data width        (dec): %0d", DataWidth                                          );
+      $display("Byte width        (dec): %0d", ByteWidth                                          );
+      $display("Byte enable width (dec): %0d", BeWidth                                            );
+      $display("Latency Cycles    (dec): %0d", Latency                                            );
+      $display("Simulation init   (str): %0s", SimInit                                            );
+      $display("#################################################################################");
+    end
+  end
+  for (genvar i = 0; i < NumPorts; i++) begin : gen_assertions
+    assert property ( @(posedge clk_i) disable iff (!rst_ni)
+        (req_i[i] |-> (addr_i[i] < NumWords))) else
+      $warning("Request address %0h not mapped, port %0d, expect random write or read behavior!",
+          addr_i[i], i);
+  end
+
+`endif
+`endif
+// pragma translate_on
+
 endmodule
