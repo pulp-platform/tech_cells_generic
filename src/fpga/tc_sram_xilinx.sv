@@ -17,15 +17,15 @@
 //              The behaviour, parameters and ports are described in the header of `rtl/tc_sram.sv`.
 
 module tc_sram #(
-  parameter int unsigned NoWords      = 32'd1024, // Number of Words in data array
+  parameter int unsigned NumWords     = 32'd1024, // Number of Words in data array
   parameter int unsigned DataWidth    = 32'd128,  // Data signal width (in bits)
   parameter int unsigned ByteWidth    = 32'd8,    // Width of a data byte (in bits)
-  parameter int unsigned NoPorts      = 32'd2,    // Number of read and write ports
+  parameter int unsigned NumPorts     = 32'd2,    // Number of read and write ports
   parameter int unsigned Latency      = 32'd1,    // Latency when the read data is available
   parameter string       SimInit      = "zeros",  // Simulation initialization, fixed to zero here!
   parameter bit          PrintSimCfg  = 1'b0,     // Print configuration
   // DEPENDENT PARAMETERS, DO NOT OVERWRITE!
-  parameter int unsigned AddrWidth = (NoWords > 32'd1) ? $clog2(NoWords) : 32'd1,
+  parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1,
   parameter int unsigned BeWidth   = (DataWidth + ByteWidth - 32'd1) / ByteWidth, // ceil_div
   parameter type         addr_t    = logic [AddrWidth-1:0],
   parameter type         data_t    = logic [DataWidth-1:0],
@@ -34,41 +34,41 @@ module tc_sram #(
   input  logic                clk_i,      // Clock
   input  logic                rst_ni,     // Asynchronous reset active low
   // input ports
-  input  logic  [NoPorts-1:0] req_i,      // request
-  input  logic  [NoPorts-1:0] we_i,       // write enable
-  input  addr_t [NoPorts-1:0] addr_i,     // request address
-  input  data_t [NoPorts-1:0] wdata_i,    // write data
-  input  be_t   [NoPorts-1:0] be_i,       // write byte enable
+  input  logic  [NumPorts-1:0] req_i,      // request
+  input  logic  [NumPorts-1:0] we_i,       // write enable
+  input  addr_t [NumPorts-1:0] addr_i,     // request address
+  input  data_t [NumPorts-1:0] wdata_i,    // write data
+  input  be_t   [NumPorts-1:0] be_i,       // write byte enable
   // output ports
-  output data_t [NoPorts-1:0] rdata_o     // read data
+  output data_t [NumPorts-1:0] rdata_o     // read data
 );
 
   localparam int unsigned DataWidthAligned = ByteWidth * BeWidth;
-  localparam int unsigned Size             = NoWords * DataWidthAligned;
+  localparam int unsigned Size             = NumWords * DataWidthAligned;
 
   typedef logic [DataWidthAligned-1:0] data_aligned_t;
 
-  data_aligned_t [NoPorts-1:0] wdata_al;
-  data_aligned_t [NoPorts-1:0] rdata_al;
-  be_t           [NoPorts-1:0] we;
+  data_aligned_t [NumPorts-1:0] wdata_al;
+  data_aligned_t [NumPorts-1:0] rdata_al;
+  be_t           [NumPorts-1:0] we;
 
   // pad with 0 to next byte for inferable macro below, as the macro wants
   // READ_DATA_WIDTH_A be a multiple of BYTE_WRITE_WIDTH_A
   always_comb begin : p_align
     wdata_al = '0;
-    for (int unsigned i = 0; i < NoPorts; i++) begin
+    for (int unsigned i = 0; i < NumPorts; i++) begin
       wdata_al[i][DataWidth-1:0] = wdata_i[i];
     end
   end
 
-  for (genvar i = 0; i < NoPorts; i++) begin : gen_port_assign
+  for (genvar i = 0; i < NumPorts; i++) begin : gen_port_assign
     for (genvar j = 0; j < BeWidth; j++) begin : gen_we_assign
       assign we[i][j] = be_i[i][j] & we_i[i];
     end
     assign rdata_o[i] = data_t'(rdata_al[i]);
   end
 
-  if (NoPorts == 32'd1) begin : gen_1_ports
+  if (NumPorts == 32'd1) begin : gen_1_ports
     // xpm_memory_spram: Single Port RAM
     // XilinxParameterizedMacro, version 2018.1
     xpm_memory_spram#(
@@ -104,7 +104,7 @@ module tc_sram #(
       .sleep    ( 1'b0         ), // 1-bit input: sleep signal to enable the dynamic power save
       .wea      ( we[0]        )
     );
-  end else if (NoPorts == 32'd2) begin : gen_2_ports
+  end else if (NumPorts == 32'd2) begin : gen_2_ports
     // xpm_memory_tdpram: True Dual Port RAM
     // XilinxParameterizedMacro, version 2018.1
     xpm_memory_tdpram#(
@@ -137,8 +137,6 @@ module tc_sram #(
     ) i_xpm_memory_tdpram (
       .dbiterra ( /*not used*/ ), // 1-bit output: Doubble bit error A
       .dbiterrb ( /*not used*/ ), // 1-bit output: Doubble bit error B
-      .douta    ( douta        ), // READ_DATA_WIDTH_A-bit output: Data output for portA
-      .doutb    ( doutb        ), // READ_DATA_WIDTH_B-bit output: Data output for portB
       .sbiterra ( /*not used*/ ), // 1-bit output: Single bit error A
       .sbiterrb ( /*not used*/ ), // 1-bit output: Single bit error B
       .addra    ( addr_i[0]    ), // ADDR_WIDTH_A-bit input: Address for port A
@@ -164,7 +162,7 @@ module tc_sram #(
       .web      ( we[1]        )  // WRITE_DATA_WIDTH_B-bit input: Write enable vector for port B
     );
   end else begin : gen_err_ports
-    $fatal(1, "Not supported port parametrisation for NoPorts: %0d", NoPorts);
+    $fatal(1, "Not supported port parametrisation for NumPorts: %0d", NumPorts);
   end
 
 // Validate parameters.
