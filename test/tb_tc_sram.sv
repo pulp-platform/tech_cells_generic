@@ -14,11 +14,11 @@
 module tb_tc_sram #(
   parameter int unsigned NumPorts  = 32'd2,
   parameter int unsigned Latency   = 32'd1,
-  parameter int unsigned NoWords   = 32'd1024,
+  parameter int unsigned NumWords  = 32'd1024,
   parameter int unsigned DataWidth = 32'd64,
   parameter int unsigned ByteWidth = 32'd8,
   parameter int unsigned NoReq     = 32'd200000,
-  parameter string       SimInit   = "random",
+  parameter string       SimInit   = "zeros",
   parameter time         CyclTime  = 10ns,
   parameter time         ApplTime  = 2ns,
   parameter time         TestTime  = 8ns
@@ -38,7 +38,7 @@ module tb_tc_sram #(
 
   logic [NumPorts-1:0] done;
 
-  localparam int unsigned AddrWidth = (NoWords > 32'd1) ? $clog2(NoWords) : 32'd1;
+  localparam int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1;
   localparam int unsigned BeWidth   = (DataWidth + ByteWidth - 32'd1) / ByteWidth;
 
   typedef logic [AddrWidth-1:0] addr_t;
@@ -52,7 +52,7 @@ module tb_tc_sram #(
   be_t   [NumPorts-1:0] be;
 
   // golden model
-  data_t           memory [NoWords-1:0];
+  data_t           memory [NumWords-1:0];
   longint unsigned failed_test;
 
   // This process drives the requests on the port with random data.
@@ -79,7 +79,7 @@ module tb_tc_sram #(
           stim_addr[k] = bit'($urandom());
         end
         // this statement makes sure that only valid addresses are in a request
-        while (stim_addr >= NoWords) begin
+        while (stim_addr >= NumWords) begin
           for (int unsigned k = 0; k < AddrWidth; k++) begin
             stim_addr[k] = bit'($urandom());
           end
@@ -116,7 +116,7 @@ module tb_tc_sram #(
   //   This process asserts the expected read output at `TestTime` in the respective cycle.
   initial begin: proc_golden_model
     failed_test = 0;
-    for (int unsigned i = 0; i < NoWords; i++) begin
+    for (int unsigned i = 0; i < NumWords; i++) begin
       for (int unsigned j = 0; j < DataWidth; j++) begin
         case (SimInit)
           "zeros": memory[i][j] = 1'b0;
@@ -184,7 +184,7 @@ module tb_tc_sram #(
   end
 
   tc_sram #(
-    .NoWords     ( NoWords   ), // Number of Words in data array
+    .NumWords    ( NumWords  ), // Number of Words in data array
     .DataWidth   ( DataWidth ), // Data signal width
     .ByteWidth   ( ByteWidth ), // Width of a data byte
     .NumPorts    ( NumPorts  ), // Number of read and write ports
