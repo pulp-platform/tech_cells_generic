@@ -12,7 +12,7 @@
 // Description: Testbench for the functional `*_sram` modules
 
 module tb_tc_sram #(
-  parameter int unsigned NoPorts   = 32'd2,
+  parameter int unsigned NumPorts  = 32'd2,
   parameter int unsigned Latency   = 32'd1,
   parameter int unsigned NoWords   = 32'd1024,
   parameter int unsigned DataWidth = 32'd64,
@@ -36,7 +36,7 @@ module tb_tc_sram #(
     .rst_no ( rst_n )
   );
 
-  logic [NoPorts-1:0] done;
+  logic [NumPorts-1:0] done;
 
   localparam int unsigned AddrWidth = (NoWords > 32'd1) ? $clog2(NoWords) : 32'd1;
   localparam int unsigned BeWidth   = (DataWidth + ByteWidth - 32'd1) / ByteWidth;
@@ -46,17 +46,17 @@ module tb_tc_sram #(
   typedef logic [BeWidth-1:0]   be_t;
 
   // signal declarations for each sram
-  logic  [NoPorts-1:0] req,   we;
-  addr_t [NoPorts-1:0] addr;
-  data_t [NoPorts-1:0] wdata, rdata;
-  be_t   [NoPorts-1:0] be;
+  logic  [NumPorts-1:0] req,   we;
+  addr_t [NumPorts-1:0] addr;
+  data_t [NumPorts-1:0] wdata, rdata;
+  be_t   [NumPorts-1:0] be;
 
   // golden model
   data_t           memory [NoWords-1:0];
   longint unsigned failed_test;
 
   // This process drives the requests on the port with random data.
-  for (genvar i = 0; i < NoPorts; i++) begin : gen_stimuli
+  for (genvar i = 0; i < NumPorts; i++) begin : gen_stimuli
     initial begin : proc_drive_port
       automatic logic  stim_write;
       automatic addr_t stim_addr;
@@ -131,7 +131,7 @@ module tb_tc_sram #(
     forever begin
       @(posedge clk);
       // writes get latched at clock in golden model array
-      for (int unsigned i = 0; i < NoPorts; i++) begin
+      for (int unsigned i = 0; i < NumPorts; i++) begin
         if (req[i] && we[i]) begin
           for (int unsigned j = 0; j < DataWidth; j++) begin
             if (be[i][j/ByteWidth]) begin
@@ -144,7 +144,7 @@ module tb_tc_sram #(
       // read test process is launched at `TestTime`
       #TestTime;
       fork
-        for (int unsigned i = 0; i < NoPorts; i++) begin
+        for (int unsigned i = 0; i < NumPorts; i++) begin
           check_read(i, addr[i]);
         end
       join_none
@@ -187,7 +187,7 @@ module tb_tc_sram #(
     .NoWords     ( NoWords   ), // Number of Words in data array
     .DataWidth   ( DataWidth ), // Data signal width
     .ByteWidth   ( ByteWidth ), // Width of a data byte
-    .NoPorts     ( NoPorts   ), // Number of read and write ports
+    .NumPorts    ( NumPorts  ), // Number of read and write ports
     .Latency     ( Latency   ), // Latency when the read data is available
     .SimInit     ( SimInit   ), // Simulation initialization
     .PrintSimCfg ( 1'b1      )  // Print configuration
