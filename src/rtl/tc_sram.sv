@@ -42,9 +42,9 @@
 // - `rdata_o`: Read data, valid `Latency` cycles after a request with `we_i` low.
 //
 // Behaviour:
-// - Address collision:  When Ports are makeing a write access onto the same addess,
-//                       the wite operation will start at the port with the lowest address
-//                       index, each port will overwrite the changes made by the privious ports
+// - Address collision:  When Ports are making a write access onto the same address,
+//                       the write operation will start at the port with the lowest address
+//                       index, each port will overwrite the changes made by the previous ports
 //                       according how the respective `be_i` signal is set.
 // - Read data on write: This implementation will not produce a read data output on the signal
 //                       `rdata_o` when `req_i` and `we_i` are asserted. The output data is stable
