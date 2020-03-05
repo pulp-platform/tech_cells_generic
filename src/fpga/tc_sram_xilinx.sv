@@ -162,7 +162,7 @@ module tc_sram #(
       .web      ( we[1]        )  // WRITE_DATA_WIDTH_B-bit input: Write enable vector for port B
     );
   end else begin : gen_err_ports
-    $fatal(1, "Not supported port parametrisation for NumPorts: %0d", NumPorts);
+    $fatal(1, "Not supported port parametrization for NumPorts: %0d", NumPorts);
   end
 
 // Validate parameters.
