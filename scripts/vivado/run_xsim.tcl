@@ -78,5 +78,3 @@ launch_simulation
 run -all
 
 close_sim
-
-
