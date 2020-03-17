@@ -97,6 +97,30 @@ module tc_sram #(
     end
   end
 
+  // set the read output if requested
+  // The read data at the highest array index is set combinational.
+  // It gets then delayed for a number of cycles until it gets available at the output at
+  // array index 0.
+
+  // read data output assignment
+  data_t [NumPorts-1:0][Latency-1:0] rdata_q,  rdata_d;
+  if (Latency == 32'd0) begin : gen_no_read_lat
+    for (genvar i = 0; i < NumPorts; i++) begin : gen_port
+      assign rdata_o[i] = (req_i[i] && !we_i[i]) ? sram[addr_i[i]] : sram[r_addr_q[i]];
+    end
+  end else begin : gen_read_lat
+
+    always_comb begin
+      for (int unsigned i = 0; i < NumPorts; i++) begin
+        rdata_o[i] = rdata_q[i][0];
+        for (int unsigned j = 0; j < (Latency-1); j++) begin
+          rdata_d[i][j] = rdata_q[i][j+1];
+        end
+        rdata_d[i][Latency-1] = (req_i[i] && !we_i[i]) ? sram[addr_i[i]] : sram[r_addr_q[i]];
+      end
+    end
+  end
+
   // write memory array
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -105,9 +129,22 @@ module tc_sram #(
       end
       for (int i = 0; i < NumPorts; i++) begin
         r_addr_q[i] <= {AddrWidth{1'b0}};
+        // initialyse the read output register for each port
+        if (Latency != 32'd0) begin
+          for (int unsigned j = 0; j < Latency; j++) begin
+            rdata_q[i][j] <= init_val[{AddrWidth{1'b0}}];
+          end
+        end
       end
     end else begin
       for (int unsigned i = 0; i < NumPorts; i++) begin
+        // read value latch happens before new data can be written to the sram
+        if (Latency != 0) begin
+          for (int unsigned j = 0; j < Latency; j++) begin
+            rdata_q[i][j] <= rdata_d[i][j];
+          end
+        end
+        // there is a request for the SRAM, latch the required register
         if (req_i[i]) begin
           if (we_i[i]) begin
             // update value when write is set at clock
@@ -123,42 +160,6 @@ module tc_sram #(
         end // if req_i
       end // for ports
     end // if !rst_ni
-  end
-
-  // set the read output if requested
-  // The read data at the highest array index is set combinational.
-  // It gets then delayed for a number of cycles until it gets available at the output at
-  // array index 0.
-
-  // read data output assignment
-  if (Latency == 32'd0) begin : gen_no_read_lat
-    for (genvar i = 0; i < NumPorts; i++) begin : gen_port
-      assign rdata_o[i] = (req_i[i] && !we_i[i]) ? sram[addr_i[i]] : sram[r_addr_q[i]];
-    end
-  end else begin : gen_read_lat
-    data_t [NumPorts-1:0][Latency-1:0] rdata_q,  rdata_d;
-
-    always_comb begin
-      for (int unsigned i = 0; i < NumPorts; i++) begin
-        rdata_o[i] = rdata_q[i][0];
-        for (int unsigned j = 0; j < (Latency-1); j++) begin
-          rdata_d[i][j] = rdata_q[i][j+1];
-        end
-        rdata_d[i][Latency-1] = (req_i[i] && !we_i[i]) ? sram[addr_i[i]] : sram[r_addr_q[i]];
-      end
-    end
-
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      for (int unsigned i = 0; i < NumPorts; i++) begin
-        for (int unsigned j = 0; j < Latency; j++) begin
-          if (!rst_ni) begin
-            rdata_q[i][j] <= init_val[j];
-          end else begin
-            rdata_q[i][j] <= rdata_d[i][j];
-          end
-        end
-      end
-    end
   end
 
 // Validate parameters.
