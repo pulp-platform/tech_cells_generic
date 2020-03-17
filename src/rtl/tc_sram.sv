@@ -137,14 +137,16 @@ module tc_sram #(
         end
       end
     end else begin
+      // read value latch happens before new data is written to the sram
       for (int unsigned i = 0; i < NumPorts; i++) begin
-        // read value latch happens before new data can be written to the sram
         if (Latency != 0) begin
           for (int unsigned j = 0; j < Latency; j++) begin
             rdata_q[i][j] <= rdata_d[i][j];
           end
         end
-        // there is a request for the SRAM, latch the required register
+      end
+      // there is a request for the SRAM, latch the required register
+      for (int unsigned i = 0; i < NumPorts; i++) begin
         if (req_i[i]) begin
           if (we_i[i]) begin
             // update value when write is set at clock
