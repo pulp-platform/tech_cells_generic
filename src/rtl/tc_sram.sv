@@ -129,7 +129,7 @@ module tc_sram #(
       end
       for (int i = 0; i < NumPorts; i++) begin
         r_addr_q[i] <= {AddrWidth{1'b0}};
-        // initialyse the read output register for each port
+        // initialize the read output register for each port
         if (Latency != 32'd0) begin
           for (int unsigned j = 0; j < Latency; j++) begin
             rdata_q[i][j] <= init_val[{AddrWidth{1'b0}}];
