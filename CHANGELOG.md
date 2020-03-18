@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
+
+## 0.2.0 - 2020-03-18
+### Added
 - Add `tc_sram` and `tc_sram_xilinx`, with testbench for verifying technology specific implementations.
 
 ## 0.1.6 - 2019-11-18
