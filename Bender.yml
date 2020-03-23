@@ -30,6 +30,6 @@ sources:
       - src/deprecated/pulp_pwr_cells.sv
       - src/tc_pwr.sv
 
-  - traget: test
+  - target: test
     files:
       - test/tb_tc_sram.sv
