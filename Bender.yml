@@ -6,6 +6,11 @@ dependencies:
   common_verification: { git: "https://github.com/pulp-platform/common_verification.git", version: 0.2.0 }
 
 sources:
+  - target: func_sim
+    files:
+      # level 0
+      - src/rtl/tc_sram.sv
+
   - target: all(fpga, xilinx)
     files:
       - src/deprecated/cluster_clk_cells_xilinx.sv
@@ -18,7 +23,6 @@ sources:
       - src/deprecated/cluster_clk_cells.sv
       - src/deprecated/pulp_clk_cells.sv
       - src/rtl/tc_clk.sv
-      - src/rtl/tc_sram.sv
 
   - target: not(synthesis)
     files:

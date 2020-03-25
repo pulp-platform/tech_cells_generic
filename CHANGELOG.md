@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
+-`Bender:` Add target `func_sim` for compiling `rtl/tc_sram`, to prevent overwriting of target specific implementations.
 
 ## 0.2.0 - 2020-03-18
 ### Added
