@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
+-`Bender:` Add target `func_sim` for compiling `rtl/tc_sram`, to prevent overwriting of target specific implementations.
 
 ### Fixed
 - `tc_sram`: Drop string literal from parameter `SimInit` definition as synopsys throws an elaboration error.
