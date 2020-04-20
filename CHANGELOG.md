@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - `tc_sram`: Drop string literal from parameter `SimInit` definition as synopsys throws an elaboration error.
+- `tc_clk:tc_clk_delay`: Add Verilator and synthesis guards.
 
 ## 0.2.0 - 2020-03-18
 ### Added
