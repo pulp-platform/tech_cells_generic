@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Added
 
+### Fixed
+- `tc_sram`: Drop string literal from parameter `SimInit` definition as synopsys throws an elaboration error.
+
 ## 0.2.0 - 2020-03-18
 ### Added
 - Add `tc_sram` and `tc_sram_xilinx`, with testbench for verifying technology specific implementations.
