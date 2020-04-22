@@ -6,7 +6,7 @@ dependencies:
   common_verification: { git: "https://github.com/pulp-platform/common_verification.git", version: 0.2.0 }
 
 sources:
-  - target: func_sim
+  - target: rtl
     files:
       # level 0
       - src/rtl/tc_sram.sv
