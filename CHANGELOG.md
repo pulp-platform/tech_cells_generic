@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Fixed
+- `tc_sram_xilinx`: Remove unsupported `string` type from `SimInit` parameter.
+
 ## 0.2.1 - 2020-06-23
 ### Added
 -`Bender:` Add `rtl/tc_sram` to target `rtl`, to prevent overwriting of target specific implementations.
