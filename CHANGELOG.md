@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Fixed
+- `tc_sram_xilinx`: Remove unsupported `string` type from `SimInit` parameter.
+
 ## 0.2.2 - 2020-11-11
 ### Fixed
 - `Bender:` Add deprecated `pulp_clock_gating_async` for compatibility to `udma_core`.
