@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.3 - 2021-01-28
 ### Fixed
 - `tc_sram_xilinx`: Remove unsupported `string` type from `SimInit` parameter.
 - `IPApproX:` Add `tc_sram` to `src_files.yml` for proper compilation with IPApproX
