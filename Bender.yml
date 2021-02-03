@@ -14,6 +14,7 @@ sources:
   - target: all(fpga, xilinx)
     files:
       - src/deprecated/cluster_clk_cells_xilinx.sv
+      - src/deprecated/pulp_clk_cells_xilinx.sv
       - src/fpga/tc_clk_xilinx.sv
       - src/fpga/tc_sram_xilinx.sv
 
