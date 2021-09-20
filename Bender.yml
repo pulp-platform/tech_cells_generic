@@ -15,14 +15,14 @@ sources:
       # level 0
       - src/rtl/tc_sram.sv
 
-  - target: all(all(fpga, xilinx), not(synthesis))
+  - target: all(all(fpga, xilinx), not(asic))
     files:
       - src/deprecated/cluster_clk_cells_xilinx.sv
       - src/deprecated/pulp_clk_cells_xilinx.sv
       - src/fpga/tc_clk_xilinx.sv
       - src/fpga/tc_sram_xilinx.sv
 
-  - target: all(not(all(fpga, xilinx)), not(synthesis))
+  - target: all(not(all(fpga, xilinx)), not(asic))
     files:
       # Level 0
       - src/rtl/tc_clk.sv
