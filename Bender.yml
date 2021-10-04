@@ -6,28 +6,23 @@ dependencies:
   common_verification: { git: "https://github.com/pulp-platform/common_verification.git", version: 0.2.0 }
 
 sources:
-  # These simply wrap tc_* cells and are fine to use in any case
-  - src/deprecated/cluster_clk_cells.sv
-  - src/deprecated/pulp_clk_cells.sv
-
-  - target: all(rtl, not(synthesis))
+  - target: all(any(all(not(asic), not(fpga)), tech_cells_generic_include_tc_sram), not(tech_cells_generic_exclude_tc_sram))
     files:
-      # level 0
+      # Level 0
       - src/rtl/tc_sram.sv
 
-  - target: all(all(fpga, xilinx), not(synthesis))
-    files:
-      - src/deprecated/cluster_clk_cells_xilinx.sv
-      - src/deprecated/pulp_clk_cells_xilinx.sv
-      - src/fpga/tc_clk_xilinx.sv
-      - src/fpga/tc_sram_xilinx.sv
-
-  - target: all(not(all(fpga, xilinx)), not(synthesis))
+  - target: all(any(all(not(asic), not(fpga)), tech_cells_generic_include_tc_clk), not(tech_cells_generic_exclude_tc_clk))
     files:
       # Level 0
       - src/rtl/tc_clk.sv
 
-  - target: not(synthesis)
+  - target: all(any(fpga, tech_cells_generic_include_xilinx_xpm), not(tech_cells_generic_exclude_xilinx_xpm))
+    files:
+      - src/fpga/pad_functional_xilinx.sv
+      - src/fpga/tc_clk_xilinx.sv
+      - src/fpga/tc_sram_xilinx.sv
+
+  - target: all(any(not(synthesis), tech_cells_generic_include_deprecated), not(tech_cells_generic_exclude_deprecated))
     files:
       - src/deprecated/cluster_pwr_cells.sv
       - src/deprecated/generic_memory.sv
@@ -35,9 +30,16 @@ sources:
       - src/deprecated/pad_functional.sv
       - src/deprecated/pulp_buffer.sv
       - src/deprecated/pulp_pwr_cells.sv
+      
+  - target: all(any(not(synthesis), tech_cells_generic_include_pwr_cells), not(tech_cells_generic_exclude_pwr_cells))
+    files:
       - src/tc_pwr.sv
 
-  - target: test
+  - target: all(any(test, tech_cells_generic_include_tb_cells), not(tech_cells_generic_exclude_tb_cells))
     files:
       - test/tb_tc_sram.sv
   - src/deprecated/pulp_clock_gating_async.sv
+
+  # These simply wrap tc_* cells and are fine to use in any case
+  - src/deprecated/cluster_clk_cells.sv
+  - src/deprecated/pulp_clk_cells.sv
