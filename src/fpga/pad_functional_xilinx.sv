@@ -20,7 +20,7 @@ module pad_functional_pd
 
   (* PULLDOWN = "YES" *)
   IOBUF iobuf_i (
-    .T ( OEN ),
+    .T ( OEN  ),
     .I ( I    ),
     .O ( O    ),
     .IO( PAD  )
@@ -39,7 +39,25 @@ module pad_functional_pu
 
   (* PULLUP = "YES" *)
   IOBUF iobuf_i (
-    .T ( OEN ),
+    .T ( OEN  ),
+    .I ( I    ),
+    .O ( O    ),
+    .IO( PAD  )
+  );
+
+endmodule
+
+module pad_functional_pd
+(
+   input  logic             OEN,
+   input  logic             I,
+   output logic             O,
+   input  logic             PEN,
+   inout  logic             PAD
+);
+
+  IOBUF iobuf_i (
+    .T ( OEN  ),
     .I ( I    ),
     .O ( O    ),
     .IO( PAD  )
