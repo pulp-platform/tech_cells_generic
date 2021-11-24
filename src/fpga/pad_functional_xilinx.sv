@@ -47,7 +47,7 @@ module pad_functional_pu
 
 endmodule
 
-module pad_functional_pd
+module pad_functional
 (
    input  logic             OEN,
    input  logic             I,
