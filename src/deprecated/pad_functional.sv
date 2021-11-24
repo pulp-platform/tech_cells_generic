@@ -85,7 +85,7 @@ module pad_functional (
   input  logic OEN,
   input  logic I,
   output logic O,
-  input logic PUEN,
+  input  logic PUEN,
   input  logic PEN,
   inout  wire  PAD
 );
