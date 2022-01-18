@@ -13,7 +13,7 @@
 # Wolfgang Roenninger <wroennin@ethz.ch>
 
 set -e
-ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")/.." && pwd)
 
 VIVADO_VER="2018.2"
 
