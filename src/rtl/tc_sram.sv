@@ -124,8 +124,10 @@ module tc_sram #(
   // write memory array
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      for (int unsigned i = 0; i < NumWords; i++) begin
-        sram[i] <= init_val[i];
+      if (SimInit != "none") begin
+        for (int unsigned i = 0; i < NumWords; i++) begin
+          sram[i] <= init_val[i];
+        end
       end
       for (int i = 0; i < NumPorts; i++) begin
         r_addr_q[i] <= {AddrWidth{1'b0}};
