@@ -83,7 +83,7 @@ module tc_sram #(
   addr_t [NumPorts-1:0] r_addr_q;
 
   // SRAM simulation initialization
-  data_t [NumWords-1:0] init_val;
+  data_t init_val [NumWords-1:0];
   initial begin : proc_sram_init
     for (int unsigned i = 0; i < NumWords; i++) begin
       for (int unsigned j = 0; j < DataWidth; j++) begin
@@ -125,14 +125,14 @@ module tc_sram #(
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       for (int unsigned i = 0; i < NumWords; i++) begin
-        sram[i] <= init_val[i];
+        sram[i] = init_val[i];
       end
       for (int i = 0; i < NumPorts; i++) begin
-        r_addr_q[i] <= {AddrWidth{1'b0}};
+        r_addr_q[i] = {AddrWidth{1'b0}};
         // initialize the read output register for each port
         if (Latency != 32'd0) begin
           for (int unsigned j = 0; j < Latency; j++) begin
-            rdata_q[i][j] <= init_val[{AddrWidth{1'b0}}];
+            rdata_q[i][j] = init_val[{AddrWidth{1'b0}}];
           end
         end
       end
@@ -141,7 +141,7 @@ module tc_sram #(
       for (int unsigned i = 0; i < NumPorts; i++) begin
         if (Latency != 0) begin
           for (int unsigned j = 0; j < Latency; j++) begin
-            rdata_q[i][j] <= rdata_d[i][j];
+            rdata_q[i][j] = rdata_d[i][j];
           end
         end
       end
@@ -152,12 +152,12 @@ module tc_sram #(
             // update value when write is set at clock
             for (int unsigned j = 0; j < DataWidth; j++) begin
               if (be_i[i][j/ByteWidth]) begin
-                sram[addr_i[i]][j] <= wdata_i[i][j];
+                sram[addr_i[i]][j] = wdata_i[i][j];
               end
             end
           end else begin
             // otherwise update read address for subsequent non request cycles
-            r_addr_q[i] <= addr_i[i];
+            r_addr_q[i] = addr_i[i];
           end
         end // if req_i
       end // for ports
