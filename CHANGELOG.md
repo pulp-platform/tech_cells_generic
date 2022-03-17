@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Added optional `IS_FUNCTIONAL` flag to `tc_clk_gating` cell to optionally mark them as *not required for functionality*.
+
 ## 0.2.4 - 2021-02-04
 - Add `deprecated/pulp_clk_cells_xilinx.sv` to `Bender.yml`
 
