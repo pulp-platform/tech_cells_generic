@@ -123,7 +123,7 @@ module tc_sram #(
   end
 
   // write memory array
-  always_ff @(posedge clk_i or negedge rst_ni) begin
+  always @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       for (int unsigned i = 0; i < NumWords; i++) begin
         sram[i] = init_val[i];
