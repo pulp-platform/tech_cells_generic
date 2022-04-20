@@ -83,7 +83,7 @@ module tc_sram #(
   addr_t [NumPorts-1:0] r_addr_q;
 
   // SRAM simulation initialization
-  data_t [NumWords-1:0] init_val;
+  data_t init_val[NumWords-1:0];
   initial begin : proc_sram_init
     for (int unsigned i = 0; i < NumWords; i++) begin
       for (int unsigned j = 0; j < DataWidth; j++) begin
@@ -124,9 +124,7 @@ module tc_sram #(
   // write memory array
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      for (int unsigned i = 0; i < NumWords; i++) begin
-        sram[i] <= init_val[i];
-      end
+      sram <= init_val;
       for (int i = 0; i < NumPorts; i++) begin
         r_addr_q[i] <= {AddrWidth{1'b0}};
         // initialize the read output register for each port
@@ -150,9 +148,9 @@ module tc_sram #(
         if (req_i[i]) begin
           if (we_i[i]) begin
             // update value when write is set at clock
-            for (int unsigned j = 0; j < DataWidth; j++) begin
-              if (be_i[i][j/ByteWidth]) begin
-                sram[addr_i[i]][j] <= wdata_i[i][j];
+            for (int unsigned j = 0; j < BeWidth; j++) begin
+              if (be_i[i][j]) begin
+                sram[addr_i[i]][j*ByteWidth+:ByteWidth] <= wdata_i[i][j*ByteWidth+:ByteWidth];
               end
             end
           end else begin
