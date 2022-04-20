@@ -77,6 +77,9 @@ module tc_sram #(
   output data_t [NumPorts-1:0] rdata_o     // read data
 );
 
+  // synthesis translate_off
+
+
   // memory array
   data_t sram [NumWords-1:0];
   // hold the read address when no read access is made
@@ -204,4 +207,6 @@ module tc_sram #(
 `endif
 `endif
 // pragma translate_on
+// synthesis translate_on
+
 endmodule
