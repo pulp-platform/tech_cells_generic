@@ -36,6 +36,12 @@ module tc_sram_impl #(
   parameter type         impl_in_t    = logic,    // Type for implementation inputs
   parameter type         impl_out_t   = logic,    // Type for implementation outputs
   parameter impl_out_t   ImplOutSim   = 'X,       // Implementation output in simulation
+  // DEPENDENT PARAMETERS, DO NOT OVERWRITE!
+  parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1,
+  parameter int unsigned BeWidth   = (DataWidth + ByteWidth - 32'd1) / ByteWidth, // ceil_div
+  parameter type         addr_t    = logic [AddrWidth-1:0],
+  parameter type         data_t    = logic [DataWidth-1:0],
+  parameter type         be_t      = logic [BeWidth-1:0]
 ) (
   input  logic                 clk_i,      // Clock
   input  logic                 rst_ni,     // Asynchronous reset active low
