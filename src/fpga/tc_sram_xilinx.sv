@@ -24,6 +24,7 @@ module tc_sram #(
   parameter int unsigned Latency      = 32'd1,    // Latency when the read data is available
   parameter              SimInit      = "zeros",  // Simulation initialization, fixed to zero here!
   parameter bit          PrintSimCfg  = 1'b0,     // Print configuration
+  parameter              ImplKey      = "none",   // Reference to specific implementation
   // DEPENDENT PARAMETERS, DO NOT OVERWRITE!
   parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1,
   parameter int unsigned BeWidth   = (DataWidth + ByteWidth - 32'd1) / ByteWidth, // ceil_div
