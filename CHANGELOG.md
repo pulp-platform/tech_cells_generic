@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.2.10 - 2022-11-20
+### Added
+- `tc_sram_impl`: Wrapper for `tc_sram` with implementation-specific keys and IO 
+
+### Changed
+- `tc_sram`: Improve simulation performance
+
+### Fixed
+- `tc_clk_xilinx`: Add `IS_FUNCTIONAL` parameter to match `tc_clk_gating` interface
+
 ## 0.2.9 - 2022-03-17
 ### Changed
 - Added optional `IS_FUNCTIONAL` flag to `tc_clk_gating` cell to optionally mark them as *not required for functionality*.
@@ -18,7 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 0.2.6 - 2021-10-04
 ### Added
-- Add `pad_functional_xilinx
+- Add `pad_functional_xilinx`
 
 ### Fixed
 - Bender targets
