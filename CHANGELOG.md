@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- `tc_clk_or2`: A new generic tech cell for balanced clock OR-gates.
+- Added warning about misusing `tc_clk_mux2` cells.
 
 ## 0.2.10 - 2022-11-20
 ### Added
