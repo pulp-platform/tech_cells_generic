@@ -71,7 +71,11 @@ endmodule
 // reset state during the transition phase. If you need dynamic switching
 // between arbitrary input clocks without introducing glitches, have a look at
 // the clk_mux_glitch_free cell in the pulp-platform/common_cells repository.
-module tc_clk_mux2 (
+module tc_clk_mux2 #(
+  /// EN_BUF_FPGA is used when avoiding to use buffered clk mux on FPGA.
+  /// (see tc_clk_xilinx.sv)
+  parameter bit EN_BUF_FPGA = 1'b0
+)(
   input  logic clk0_i,
   input  logic clk1_i,
   input  logic clk_sel_i,
