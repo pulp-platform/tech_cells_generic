@@ -65,16 +65,16 @@ module tc_sram #(
   be_aligned_t   [NumPorts-1:0] we_al;
 
   for (genvar i = 0; i < NumPorts; i++) begin : gen_align
+    // Zero-pad data to allow bit select
+    assign wdata_pad[i] = data_aligned_t'(wdata_i[i]);
+    assign rdata_o[i]   = data_t'(rdata_pad[i]);
     for (genvar j = 0; j < BeWidth; j++) begin
-        // Zero-pad data to allow bit select
-        assign wdata_pad[i]                                      = data_aligned_t'(wdata_i[i]);
-        assign rdata_o[i]                                        = data_t'(rdata_pad[i]);
         // Unpack data
         assign wdata_al[i][j*ByteWidthAligned+:ByteWidthAligned] = ByteWidthAligned'(wdata_pad[i][j*ByteWidth+:ByteWidth]);
         assign rdata_pad[i][j*ByteWidth+:ByteWidth]              = ByteWidth'(rdata_al[i][j*ByteWidthAligned+:ByteWidthAligned]);
         // In case ByteWidth > 8, let each be_i drive the corresponding number of memory be
-        assign be_al[i][j*BytesPerByte+:BytesPerByte]            = be_i[i][j];
-        assign we_al[i][j*BytesPerByte+:BytesPerByte]            = be_i[i][j] & we_i[i];
+        assign be_al[i][j*BytesPerByte+:BytesPerByte]            = {BytesPerByte{be_i[i][j]}};
+        assign we_al[i][j*BytesPerByte+:BytesPerByte]            = {BytesPerByte{be_i[i][j] & we_i[i]}};
     end
   end
 
