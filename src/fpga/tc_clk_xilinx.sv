@@ -57,19 +57,29 @@ module tc_clk_inverter (
 
 endmodule
 
-module tc_clk_mux2 (
+module tc_clk_mux2 #(
+  /// Using BUFGMUX on FPGA can allocate limited clock ressources
+  /// to non clock signals. It can also create long buffer chain
+  /// depending on your design.
+  /// If you need your signal to be buffered, use EN_BUF_FPGA = 0
+  parameter bit EN_BUF_FPGA = 1'b0
+)(
   input  logic clk0_i,
   input  logic clk1_i,
   input  logic clk_sel_i,
   output logic clk_o
 );
 
-  BUFGMUX i_BUFGMUX (
-    .S  ( clk_sel_i ),
-    .I0 ( clk0_i    ),
-    .I1 ( clk1_i    ),
-    .O  ( clk_o     )
-  );
+  if (EN_BUF_FPGA) begin
+    BUFGMUX i_BUFGMUX (
+      .S  ( clk_sel_i ),
+      .I0 ( clk0_i    ),
+      .I1 ( clk1_i    ),
+      .O  ( clk_o     )
+    );
+  end else begin
+    assign clk_o = clk_sel_i ? clk1_i : clk0_i;
+  end
 
 endmodule
 
