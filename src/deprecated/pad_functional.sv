@@ -80,3 +80,41 @@ module pad_functional_pu (
   rpmos  (PAD, PAD_wi, 1'b0);
 
 endmodule
+
+module pad_functional (
+  input  logic OEN,
+  input  logic I,
+  output logic O,
+  input  logic PUEN,
+  input  logic PEN,
+  inout  wire  PAD
+);
+
+/*
+    X Unknown
+    Z Hi-Z
+    H Pull High
+    L Pull Low
+*/
+
+/*
+    OEN I   PAD PUEN PEN | PAD O
+                         |
+    0   0   -   0/1  0/1 | 0   0
+    0   1   -   0/1  0/1 | 1   1
+    1   0/1 0   0/1  0/1 | -   0
+    1   0/1 1   0/1  0/1 | -   1
+    1   0/1 Z    0   0   | H   H
+    1   0/1 Z    1   0   | L   L
+    1   0/1 Z   0/1  1   | -   X
+
+*/
+
+  wire   PAD_wi;
+
+  bufif0 (PAD, I, OEN);
+  buf    (O, PAD);
+  bufif0 (PAD_wi, ~PUEN, PEN);
+  rpmos  (PAD, PAD_wi, 1'b0);
+
+endmodule
