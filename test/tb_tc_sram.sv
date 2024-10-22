@@ -12,16 +12,17 @@
 // Description: Testbench for the functional `*_sram` modules
 
 module tb_tc_sram #(
-  parameter int unsigned NumPorts  = 32'd2,
-  parameter int unsigned Latency   = 32'd1,
-  parameter int unsigned NumWords  = 32'd1024,
+  parameter int unsigned NumPorts = 32'd2,
+  parameter int unsigned Latency = 32'd1,
+  parameter int unsigned NumWords = 32'd1024,
   parameter int unsigned DataWidth = 32'd64,
   parameter int unsigned ByteWidth = 32'd8,
-  parameter int unsigned NoReq     = 32'd200000,
-  parameter string       SimInit   = "zeros",
-  parameter time         CyclTime  = 10ns,
-  parameter time         ApplTime  = 2ns,
-  parameter time         TestTime  = 8ns
+  parameter int unsigned NoReq = 32'd10,
+  parameter int unsigned NumLogicBanks = 32'd1,
+  parameter string       SimInit = "zeros",
+  parameter time         CyclTime = 10ns,
+  parameter time         ApplTime = 2ns,
+  parameter time         TestTime = 8ns
 );
 
   //-----------------------------------
@@ -183,14 +184,33 @@ module tb_tc_sram #(
     $stop();
   end
 
-  tc_sram #(
-    .NumWords    ( NumWords  ), // Number of Words in data array
-    .DataWidth   ( DataWidth ), // Data signal width
-    .ByteWidth   ( ByteWidth ), // Width of a data byte
-    .NumPorts    ( NumPorts  ), // Number of read and write ports
-    .Latency     ( Latency   ), // Latency when the read data is available
-    .SimInit     ( SimInit   ), // Simulation initialization
-    .PrintSimCfg ( 1'b1      )  // Print configuration
+  // tc_sram #(
+  //   .NumWords    ( NumWords  ), // Number of Words in data array
+  //   .DataWidth   ( DataWidth ), // Data signal width
+  //   .ByteWidth   ( ByteWidth ), // Width of a data byte
+  //   .NumPorts    ( NumPorts  ), // Number of read and write ports
+  //   .Latency     ( Latency   ), // Latency when the read data is available
+  //   .SimInit     ( SimInit   ), // Simulation initialization
+  //   .PrintSimCfg ( 1'b1      )  // Print configuration
+  // ) i_tc_sram_dut (
+  //   .clk_i   ( clk   ), // Clock
+  //   .rst_ni  ( rst_n ), // Asynchronous reset active low
+  //   .req_i   ( req   ), // request
+  //   .we_i    ( we    ), // write enable
+  //   .addr_i  ( addr  ), // request address
+  //   .wdata_i ( wdata ), // write data
+  //   .be_i    ( be    ), // write byte enable
+  //   .rdata_o ( rdata )  // read data
+  // );
+  tc_sram_multibank #(
+    .NumWords      ( NumWords  ),     // Number of Words in data array
+    .DataWidth     ( DataWidth ),     // Data signal width
+    .ByteWidth     ( ByteWidth ),     // Width of a data byte
+    .NumPorts      ( NumPorts  ),     // Number of read and write ports
+    .Latency       ( Latency   ),     // Latency when the read data is available
+    .NumLogicBanks (NumLogicBanks),   // Number of Logic Banks for power gating/retention
+    .SimInit       ( SimInit   ),     // Simulation initialization
+    .PrintSimCfg   ( 1'b1      )      // Print configuration
   ) i_tc_sram_dut (
     .clk_i   ( clk   ), // Clock
     .rst_ni  ( rst_n ), // Asynchronous reset active low
@@ -199,6 +219,8 @@ module tb_tc_sram #(
     .addr_i  ( addr  ), // request address
     .wdata_i ( wdata ), // write data
     .be_i    ( be    ), // write byte enable
+    .deepsleep_i (),
+    .powergate_i (),
     .rdata_o ( rdata )  // read data
   );
 endmodule

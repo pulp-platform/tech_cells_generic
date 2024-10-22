@@ -17,21 +17,25 @@ set -e
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 [ ! -z "$VSIM" ] || VSIM=vsim
+if [ -f vsim.log ]; then
+  echo "START SIMULATION" > vsim.log
+fi
 
 call_vsim() {
-    echo "run -all" | $VSIM "$@" | tee vsim.log 2>&1
+    echo "run -all" | $VSIM "$@" | tee -a vsim.log 2>&1
     grep "Errors: 0," vsim.log
 }
 
 for PORTS in 1 2; do
   for LATENCY in 0 1 2; do
-    for WORDS in 1 420 1024; do
+    for WORDS in 16 256 512 1024; do
       for DWIDTH in 1 42 64; do
         for BYTEWIDTH in 1 8 9; do
-          call_vsim tb_tc_sram -GNumPorts=$PORTS -GLatency=$LATENCY -GNumWords=$WORDS -GDataWidth=$DWIDTH -GByteWidth=$BYTEWIDTH
+          for BANKS in 1 2; do
+            call_vsim tb_tc_sram -gNumPorts=$PORTS -gLatency=$LATENCY -gNumWords=$WORDS -gDataWidth=$DWIDTH -gByteWidth=$BYTEWIDTH -gNumLogicBanks=$BANKS
+          done
        done
       done
     done
   done
 done
-
