@@ -4,13 +4,13 @@
 //
 // Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
-// Description: A wrapper for `tc_sram` which instantiate logic banks that can be in retentive mode
+// Description: A wrapper for `tc_sram_impl` which instantiate logic banks that can be in retentive mode
 //              or can be turned off. This module can be used for Power Aware simulations and the
-//              comntrol signals can be driven directly from the UPF signals.
+//              control signals can be driven directly from the UPF signals.
 //
 // Additional paramters:
 //   - `NumLogicBanks`: Is the number of logic banks to instantiate. By default is equal to 32'd1,
-//                      i.e. only one tc_sram will be instantiated.
+//                      i.e. only one tc_sram_impl will be instantiated.
 //
 // Additional Ports:
 //   - `deepsleep_i`: Asynchronous deep-sleep enable
@@ -47,10 +47,17 @@ module tc_sram_multibank #(
     output data_t [     NumPorts-1:0] rdata_o       // read data
 );
 
+   // Implementation type for Power Gating and Deppesleep ports
+   typedef struct packed {
+      logic deepsleep;
+      logic powergate;
+   } impl_in_t;
+
+
    if (NumLogicBanks == 32'd0) begin : gen_no_logic_bank
       $fatal("Error: %d logic banks are not supported", NumLogicBanks);
    end else if (NumLogicBanks == 32'd1) begin : gen_simple_sram
-      tc_sram_pwrgate #(
+      tc_sram_impl #(
           .NumWords   (NumWords),
           .DataWidth  (DataWidth),
           .ByteWidth  (ByteWidth),
@@ -58,19 +65,22 @@ module tc_sram_multibank #(
           .Latency    (Latency),
           .SimInit    (SimInit),
           .PrintSimCfg(PrintSimCfg),
-          .ImplKey    (ImplKey)
-      ) i_tc_sram_pwrgate (
+          .ImplKey    (ImplKey),
+          .impl_in_t  (impl_in_t),
+          .impl_out_t (impl_in_t)
+      ) i_tc_sram_impl (
           .clk_i,
           .rst_ni,
+          .impl_i ({deepsleep_i, powergate_i}),
+          .impl_o (),
           .req_i,
           .we_i,
           .addr_i,
           .wdata_i,
           .be_i,
-          .deepsleep_i,
-          .powergate_i,
           .rdata_o
       );
+
    end else begin : gen_logic_bank  // block: gen_simple_sram
       localparam int unsigned LogicBankSize = NumWords / NumLogicBanks;
       localparam int unsigned BankSelWidth = (NumLogicBanks > 32'd1) ? $clog2(
@@ -144,7 +154,8 @@ module tc_sram_multibank #(
             assign we_cut[BankIdx][PortIdx] = req_cut[BankIdx][PortIdx] ? we_i[PortIdx] : '0;
             assign be_cut[BankIdx][PortIdx] = req_cut[BankIdx][PortIdx] ? be_i[PortIdx] : '0;
          end
-         tc_sram_pwrgate #(
+
+         tc_sram_impl #(
              .NumWords   (LogicBankSize),
              .DataWidth  (DataWidth),
              .ByteWidth  (ByteWidth),
@@ -152,18 +163,20 @@ module tc_sram_multibank #(
              .Latency    (Latency),
              .SimInit    (SimInit),
              .PrintSimCfg(PrintSimCfg),
-             .ImplKey    (ImplKey)
-         ) i_tc_sram_pwrgate (
+             .ImplKey    (ImplKey),
+             .impl_in_t  (impl_in_t),
+             .impl_out_t (impl_in_t)
+         ) i_tc_sram_impl (
              .clk_i,
              .rst_ni,
-             .req_i      (req_cut[BankIdx]),
-             .we_i       (we_cut[BankIdx]),
-             .addr_i     (addr_cut[BankIdx]),
-             .wdata_i    (wdata_cut[BankIdx]),
-             .be_i       (be_cut[BankIdx]),
-             .deepsleep_i(deepsleep_i[BankIdx]),
-             .powergate_i(powergate_i[BankIdx]),
-             .rdata_o    (rdata_cut[BankIdx])
+             .impl_i ({deepsleep_i[BankIdx], powergate_i[BankIdx]}),
+             .impl_o (),
+             .req_i  (req_cut[BankIdx]),
+             .we_i   (we_cut[BankIdx]),
+             .addr_i (addr_cut[BankIdx]),
+             .wdata_i(wdata_cut[BankIdx]),
+             .be_i   (be_cut[BankIdx]),
+             .rdata_o(rdata_cut[BankIdx])
          );
       end
    end
