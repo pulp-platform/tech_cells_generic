@@ -14,7 +14,7 @@
 # Andreas Kurth  <akurth@iis.ee.ethz.ch>
 
 set -e
-
-bender script vsim -t test -t rtl --vlog-arg="-svinputport=compat" --vlog-arg="-override_timescale 1ns/1ps" > compile.tcl
+BENDER_FLAGS=$1
+bender script vsim -t test -t rtl $BENDER_FLAGS --vlog-arg="-svinputport=compat" --vlog-arg="-override_timescale 1ns/1ps" > compile.tcl
 echo 'return 0' >> compile.tcl
 vsim -c -do 'exit -code [source compile.tcl]'

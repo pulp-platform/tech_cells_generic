@@ -69,16 +69,16 @@ module tc_sram #(
   parameter type         data_t    = logic [DataWidth-1:0],
   parameter type         be_t      = logic [BeWidth-1:0]
 ) (
-  input  logic                 clk_i,      // Clock
-  input  logic                 rst_ni,     // Asynchronous reset active low
+  input logic                clk_i,                         // Clock
+  input logic                rst_ni,                        // Asynchronous reset active low
   // input ports
-  input  logic  [NumPorts-1:0] req_i,      // request
-  input  logic  [NumPorts-1:0] we_i,       // write enable
-  input  addr_t [NumPorts-1:0] addr_i,     // request address
-  input  data_t [NumPorts-1:0] wdata_i,    // write data
-  input  be_t   [NumPorts-1:0] be_i,       // write byte enable
+  input logic [NumPorts-1:0] req_i,                         // request
+  input logic [NumPorts-1:0] we_i,                          // write enable
+  input                      addr_t [NumPorts-1:0] addr_i,  // request address
+  input                      data_t [NumPorts-1:0] wdata_i, // write data
+  input                      be_t [NumPorts-1:0] be_i,      // write byte enable
   // output ports
-  output data_t [NumPorts-1:0] rdata_o     // read data
+  output                     data_t [NumPorts-1:0] rdata_o  // read data
 );
 
   // memory array

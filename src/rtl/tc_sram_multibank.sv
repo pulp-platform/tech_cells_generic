@@ -17,21 +17,21 @@
 //   - `powergate_i`: Asynchornous power gating enable
 
 module tc_sram_multibank #(
-    parameter int unsigned NumWords = 32'd1024,  // Number of Words in data array
-    parameter int unsigned DataWidth = 32'd128,  // Data signal width
-    parameter int unsigned ByteWidth = 32'd8,  // Width of a data byte
-    parameter int unsigned NumPorts = 32'd2,  // Number of read and write ports
-    parameter int unsigned Latency = 32'd1,  // Latency when the read data is available
-    parameter int unsigned NumLogicBanks = 32'd1,  // Logic bank for Power Management
-    parameter SimInit = "none",  // Simulation initialization
-    parameter bit PrintSimCfg = 1'b0,  // Print configuration
-    parameter ImplKey = "none",  // Reference to specific implementation
+    parameter int unsigned NumWords = 32'd1024,                                   // Number of Words in data array
+    parameter int unsigned DataWidth = 32'd128,                                   // Data signal width
+    parameter int unsigned ByteWidth = 32'd8,                                     // Width of a data byte
+    parameter int unsigned NumPorts = 32'd2,                                      // Number of read and write ports
+    parameter int unsigned Latency = 32'd1,                                       // Latency when the read data is available
+    parameter int unsigned NumLogicBanks = 32'd1,                                 // Logic bank for Power Management
+    parameter              SimInit = "none",                                      // Simulation initialization
+    parameter bit          PrintSimCfg = 1'b0,                                    // Print configuration
+    parameter              ImplKey = "none",                                      // Reference to specific implementation
     // DEPENDENT PARAMETERS, DO NOT OVERWRITE!
     parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1,
-    parameter int unsigned BeWidth = (DataWidth + ByteWidth - 32'd1) / ByteWidth,  // ceil_div
-    parameter type addr_t = logic [AddrWidth-1:0],
-    parameter type data_t = logic [DataWidth-1:0],
-    parameter type be_t = logic [BeWidth-1:0]
+    parameter int unsigned BeWidth = (DataWidth + ByteWidth - 32'd1) / ByteWidth, // ceil_div
+    parameter type         addr_t = logic [AddrWidth-1:0],
+    parameter type         data_t = logic [DataWidth-1:0],
+    parameter type         be_t = logic [BeWidth-1:0]
 ) (
     input  logic                      clk_i,        // Clock
     input  logic                      rst_ni,       // Asynchronous reset active low
@@ -51,16 +51,15 @@ module tc_sram_multibank #(
       $fatal("Error: %d logic banks are not supported", NumLogicBanks);
    end else if (NumLogicBanks == 32'd1) begin : gen_simple_sram
       tc_sram_pwrgate #(
-          .NumWords     (NumWords),
-          .DataWidth    (DataWidth),
-          .ByteWidth    (ByteWidth),
-          .NumPorts     (NumPorts),
-          .Latency      (Latency),
-          .NumLogicBanks(NumLogicBanks),
-          .SimInit      (SimInit),
-          .PrintSimCfg  (PrintSimCfg),
-          .ImplKey      (ImplKey)
-      ) i_tc_sram (
+          .NumWords   (NumWords),
+          .DataWidth  (DataWidth),
+          .ByteWidth  (ByteWidth),
+          .NumPorts   (NumPorts),
+          .Latency    (Latency),
+          .SimInit    (SimInit),
+          .PrintSimCfg(PrintSimCfg),
+          .ImplKey    (ImplKey)
+      ) i_tc_sram_pwrgate (
           .clk_i,
           .rst_ni,
           .req_i,
@@ -73,11 +72,13 @@ module tc_sram_multibank #(
           .rdata_o
       );
    end else begin : gen_logic_bank  // block: gen_simple_sram
-      localparam int unsigned LogicBankSize = NumWords/NumLogicBanks;
-      localparam int unsigned BankSelWidth = (NumLogicBanks > 32'd1) ? $clog2(NumLogicBanks) : 32'd1;
+      localparam int unsigned LogicBankSize = NumWords / NumLogicBanks;
+      localparam int unsigned BankSelWidth = (NumLogicBanks > 32'd1) ? $clog2(
+          NumLogicBanks
+      ) : 32'd1;
 
-      if (LogicBankSize != 2**(AddrWidth-BankSelWidth))
-        $fatal("Logic Bank size is not a power of two: UNSUPPORTED ");
+      if (LogicBankSize != 2 ** (AddrWidth - BankSelWidth))
+         $fatal("Logic Bank size is not a power of two: UNSUPPORTED ");
 
       // Signals from/to logic banks
       logic  [NumLogicBanks-1:0][    NumPorts-1:0]                             req_cut;
@@ -89,22 +90,48 @@ module tc_sram_multibank #(
 
       // Signals to select the right bank
       logic  [     NumPorts-1:0][BankSelWidth-1:0]                             bank_sel;
-      logic  [     NumPorts-1:0][BankSelWidth-1:0]                             out_mux_sel;
+      logic [NumPorts-1:0][Latency-1:0][BankSelWidth-1:0] out_mux_sel_d, out_mux_sel_q;
 
-      // Store the Bank Select signal to correctly select the output data
-      for (genvar PortIdx = 0; PortIdx < NumPorts; PortIdx++) begin : gen_cut_muxing_signals
+      // Identify bank looking at the BankSelWidth-th MSBs of the Address
+      for (genvar PortIdx = 0; PortIdx < NumPorts; PortIdx++) begin : gen_bank_sel
          assign bank_sel[PortIdx] = addr_i[PortIdx][AddrWidth-1-:BankSelWidth];
-         always_ff @(posedge clk_i or negedge rst_ni) begin
-            if (!rst_ni) begin
-               out_mux_sel[PortIdx] <= '0;
-            end else begin
-               out_mux_sel[PortIdx] <= bank_sel[PortIdx];
-            end
-         end
-         // Assign output data looking the latest Bank Select signal
-         assign rdata_o[PortIdx] = rdata_cut[bank_sel[PortIdx]][PortIdx];
       end
 
+      // Read Data Mux Logic:
+      //
+      // If the memory has Latency != 0, the read data will arive after a certain delay.
+      // During this time, the bank_select signal must be stored in order to
+      // correctly select the output bank after the expected latency.
+      if (Latency == 32'd0) begin : gen_no_latency
+         for (genvar PortIdx = 0; PortIdx < NumPorts; PortIdx++) begin : gen_read_mux_signals
+            assign rdata_o[PortIdx] = rdata_cut[bank_sel[PortIdx]][PortIdx];
+         end
+      end else begin : gen_read_latency
+         always_comb begin
+            for (int PortIdx = 0; PortIdx < NumPorts; PortIdx++) begin : gen_read_mux_signals
+               rdata_o[PortIdx] = rdata_cut[out_mux_sel_q[PortIdx][0]][PortIdx];
+               for (int shift_idx = 0; shift_idx < (Latency - 1); shift_idx++) begin : gen_shift
+                  out_mux_sel_d[PortIdx][shift_idx] = out_mux_sel_q[PortIdx][shift_idx+1];
+               end
+               out_mux_sel_d[PortIdx][Latency-1] = bank_sel[PortIdx];
+            end
+         end
+
+         always_ff @(posedge clk_i or negedge rst_ni) begin
+            for (int PortIdx = 0; PortIdx < NumPorts; PortIdx++) begin
+               if (!rst_ni) begin
+                  out_mux_sel_q[PortIdx] = '0;
+               end else begin
+                  for (int shift_idx = 0; shift_idx < Latency; shift_idx++) begin
+                     out_mux_sel_q[PortIdx][shift_idx] = out_mux_sel_d[PortIdx][shift_idx];
+                  end
+               end
+            end
+         end
+      end : gen_read_latency
+
+      // Write data Mux Logic
+      //
       for (genvar BankIdx = 0; BankIdx < NumLogicBanks; BankIdx++) begin : gen_logic_bank
          for (genvar PortIdx = 0; PortIdx < NumPorts; PortIdx++) begin
             // DEMUX the input signals to the correct logic bank
@@ -118,16 +145,15 @@ module tc_sram_multibank #(
             assign be_cut[BankIdx][PortIdx] = req_cut[BankIdx][PortIdx] ? be_i[PortIdx] : '0;
          end
          tc_sram_pwrgate #(
-             .NumWords     (NumWords / NumLogicBanks),
-             .DataWidth    (DataWidth),
-             .ByteWidth    (ByteWidth),
-             .NumPorts     (NumPorts),
-             .Latency      (Latency),
-             .NumLogicBanks(NumLogicBanks),
-             .SimInit      (SimInit),
-             .PrintSimCfg  (PrintSimCfg),
-             .ImplKey      (ImplKey)
-         ) i_tc_sram (
+             .NumWords   (LogicBankSize),
+             .DataWidth  (DataWidth),
+             .ByteWidth  (ByteWidth),
+             .NumPorts   (NumPorts),
+             .Latency    (Latency),
+             .SimInit    (SimInit),
+             .PrintSimCfg(PrintSimCfg),
+             .ImplKey    (ImplKey)
+         ) i_tc_sram_pwrgate (
              .clk_i,
              .rst_ni,
              .req_i      (req_cut[BankIdx]),
