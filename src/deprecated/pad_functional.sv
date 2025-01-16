@@ -41,7 +41,11 @@ module pad_functional_pd (
   bufif0 (PAD, I, OEN);
   buf    (O, PAD);
   bufif0 (PAD_wi, 1'b0, PEN);
+`ifdef VERILATOR
+  pmos   (PAD, PAD_wi, 1'b0);
+`else
   rpmos  (PAD, PAD_wi, 1'b0);
+`endif
 
 endmodule
 
@@ -77,6 +81,10 @@ module pad_functional_pu (
   bufif0 (PAD, I, OEN);
   buf    (O, PAD);
   bufif0 (PAD_wi, 1'b1, PEN);
+`ifdef VERILATOR
+  pmos   (PAD, PAD_wi, 1'b0);
+`else
   rpmos  (PAD, PAD_wi, 1'b0);
+`endif
 
 endmodule
