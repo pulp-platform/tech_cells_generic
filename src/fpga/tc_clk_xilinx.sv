@@ -29,7 +29,6 @@ module tc_clk_buffer (
 
 endmodule
 
-// Disable clock gating on FPGA as it behaves differently than expected
 module tc_clk_gating #(
   /// This paramaeter is a hint for tool/technology specific mappings of this
   /// tech_cell. It indicates wether this particular clk gate instance is
@@ -44,7 +43,20 @@ module tc_clk_gating #(
    output logic clk_o
 );
 
-  assign clk_o = clk_i;
+  if (IS_FUNCTIONAL) begin : gen_functional
+    BUFGCE #(
+      .CE_TYPE        ( "SYNC"       ),
+      .IS_CE_INVERTED ( 1'b0         ),
+      .IS_I_INVERTED  ( 1'b0         ),
+      .SIM_DEVICE     ( "ULTRASCALE" )
+    ) i_clk_gate (
+      .I  ( clk_i ),
+      .CE ( en_i  ),
+      .O  ( clk_o )
+    );
+  end else begin : gen_non_functional
+    assign clk_o = clk_i;
+  end
 
 endmodule
 
