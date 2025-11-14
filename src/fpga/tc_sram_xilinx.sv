@@ -182,7 +182,8 @@ module tc_sram #(
 `ifndef VERILATOR
 `ifndef TARGET_SYNTHESIS
   initial begin: p_assertions
-    assert (SimInit == "zeros") else $fatal(1, "The Xilinx `tc_sram` has fixed SimInit: zeros");
+    assert (SimInit == "zeros" || SimInit == "none") else $fatal(1, "The Xilinx `tc_sram` has fixed SimInit: zeros");
+    if (SimInit == "none") $warning("The Xilinx `tc_sram` %m will be initialized with 0 instead of x.");
     assert ($bits(addr_i)  == NumPorts * AddrWidth) else $fatal(1, "AddrWidth problem on `addr_i`");
     assert ($bits(wdata_i) == NumPorts * DataWidth) else $fatal(1, "DataWidth problem on `wdata_i`");
     assert ($bits(be_i)    == NumPorts * BeWidth)   else $fatal(1, "BeWidth   problem on `be_i`"   );
