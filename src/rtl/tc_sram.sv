@@ -53,6 +53,45 @@
 //                       `rdata_o` when `req_i` and `we_i` are asserted. The output data is stable
 //                       on write requests.
 
+`ifdef SYNTHESIS
+// Synthesizable stub for lint/synthesis flows. The functional model below is
+// intended for simulation only.
+module tc_sram #(
+  parameter int unsigned NumWords     = 32'd1024, // Number of Words in data array
+  parameter int unsigned DataWidth    = 32'd128,  // Data signal width
+  parameter int unsigned ByteWidth    = 32'd8,    // Width of a data byte
+  parameter int unsigned NumPorts     = 32'd2,    // Number of read and write ports
+  parameter int unsigned Latency      = 32'd1,    // Latency when the read data is available
+  parameter              SimInit      = "none",   // Simulation initialization
+  parameter bit          PrintSimCfg  = 1'b0,     // Print configuration
+  parameter              ImplKey      = "none",   // Reference to specific implementation
+  // DEPENDENT PARAMETERS, DO NOT OVERWRITE!
+  parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1,
+  parameter int unsigned BeWidth   = (DataWidth + ByteWidth - 32'd1) / ByteWidth, // ceil_div
+  parameter type         addr_t    = logic [AddrWidth-1:0],
+  parameter type         data_t    = logic [DataWidth-1:0],
+  parameter type         be_t      = logic [BeWidth-1:0]
+) (
+  input  logic                 clk_i,      // Clock
+  input  logic                 rst_ni,     // Asynchronous reset active low
+  // input ports
+  input  logic  [NumPorts-1:0] req_i,      // request
+  input  logic  [NumPorts-1:0] we_i,       // write enable
+  input  addr_t [NumPorts-1:0] addr_i,     // request address
+  input  data_t [NumPorts-1:0] wdata_i,    // write data
+  input  be_t   [NumPorts-1:0] be_i,       // write byte enable
+  // output ports
+  output data_t [NumPorts-1:0] rdata_o     // read data
+);
+  // Consume inputs to avoid lint warnings in stubbed model.
+  logic _unused;
+  always_comb begin
+    _unused = &{1'b0, clk_i, rst_ni, req_i, we_i, addr_i, wdata_i, be_i};
+    if (_unused) rdata_o = '0;
+    else         rdata_o = '0;
+  end
+endmodule
+`else
 module tc_sram #(
   parameter int unsigned NumWords     = 32'd1024, // Number of Words in data array
   parameter int unsigned DataWidth    = 32'd128,  // Data signal width
@@ -88,6 +127,7 @@ module tc_sram #(
 
   // SRAM simulation initialization
   data_t init_val[NumWords-1:0];
+  // pragma translate_off
   initial begin : proc_sram_init
     for (int unsigned i = 0; i < NumWords; i++) begin
       case (SimInit)
@@ -98,6 +138,7 @@ module tc_sram #(
       endcase
     end
   end
+  // pragma translate_on
 
   // set the read output if requested
   // The read data at the highest array index is set combinational.
@@ -243,3 +284,4 @@ module tc_sram #(
 `endif
 // pragma translate_on
 endmodule
+`endif
