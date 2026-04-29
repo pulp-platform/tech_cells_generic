@@ -2,7 +2,7 @@
 
 Maintainer: Philippe Sauter <phsauter@iis.ee.ethz.ch>
 
-This repository contains technology related cells like SRAMs, clock-gating cells, power management cells. The description here are:
+This repository contains technology related cells like SRAMs, clock-gating cells, power management cells, pads. The description here are:
 
 - **Behavioral**: Meant for RTL simulation only.
 - **FPGA**: Meant for FPGA implementation. Currently we only support Xilinx FPGAs. But we are happy to accept patches for Altera or other devices.
@@ -51,3 +51,20 @@ Power cells are mostly used for advanced power gating features and not used in a
 | `tc_pwr_power_gating`               | Power Gate with ctrl and status pins | active |
 | `tc_pwr_isolation_lo`               | Isolation Cell w/ isolate to `1'b0`  | active |
 | `tc_pwr_isolation_hi`               | Isolation Cell w/ isolate to `1'b1`  | active |
+
+### Pad Cells
+
+Pad cells. Behaviour model of generic I/O pads. All pad cells can be found in `tc_pad.sv`.
+Also a package 'tc_pad_pkg.sv" is provided to configure and define the behaviour of the generic pads.
+
+| Name              | Description                        | Status | Xilinx             |
+|-------------------|------------------------------------|--------|--------------------|
+| `tc_pad_pwr_mng`  | Power management pad               | active |                    |
+| `tc_pad_vdd_core` | Power pad for core power domain    | active |                    |
+| `tc_pad_vss_core` | Ground pad for core power domain   | active |                    |
+| `tc_pad_vdd_io`   | Power pad for io power domain      | active |                    |
+| `tc_pad_vss_io`   | Ground pad for io power domain     | active |                    |
+| `tc_pad_corner`   | Corner pad                         | active |                    |
+| `tc_pad_bidir`    | Digital bidirectional i/o pad      | active |                    |
+| `tc_pad_input`    | Digital input pad                  | active |                    |
+| `tc_pad_output`   | Digital output pad                 | active |                    |
