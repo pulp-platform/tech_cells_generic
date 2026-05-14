@@ -4,20 +4,20 @@
 //
 // Author: Riccardo Fiorani Gallotta <riccardo.fiorani3@unibo.it>
 //
-// Package with configuration and type definitions for beahviour model of generic io pads
+// Package with configuration and type definitions for behaviour model of generic io pads
 //
 
 package tc_pad_pkg;
     // Type for configuration of pads behaviour
     typedef struct packed {
         bit          av_bidir_cell;          // bidirectional io cell availability
-        bit          av_in_cell;             // only input cell availability
-        bit          av_out_cell;            // only output cell availability
+        bit          av_in_cell;             // input cell availability
+        bit          av_out_cell;            // output cell availability
         bit          in_en_latch;            // input enable is latched when retention is enabled
-        bit          pu_pd_both_en;          // both pull up and pull down can be both enable at the same time
+        bit          pu_pd_both_en;          // Both pull-up and pull-down can be enabled at the same time
         bit          rt_en_ah;               // retention enable internal signal active high
-        int unsigned ds_w;                   // drive strength level signal width
-        int unsigned n_int;                  // number of internal signals (in addition to retention LSB)
+        int          ds_w;                   // drive strength level signal width
+        int          n_int;                  // number of internal signals (in addition to retention LSB)
     } tc_pad_config_t;
 
     typedef enum bit {V, H} tc_pad_orientation_t; 
