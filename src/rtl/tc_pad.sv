@@ -209,7 +209,7 @@ module tc_pad_input #(
     // if retention enabled latch input_en, pu_en and pd_en
     // LSB of internal signal is retention enable
     always_latch begin : gen_retention_latch
-        if (int_io[0] == ~tc_pad_config.rt_en_ah) begin
+        if (int_io[0] === ~tc_pad_config.rt_en_ah) begin
             pu_en_latch    <= pu_en_i;
             pd_en_latch    <= pd_en_i;
         end
