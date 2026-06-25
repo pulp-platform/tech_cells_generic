@@ -88,14 +88,21 @@ module tc_sram #(
   addr_t [NumPorts-1:0] r_addr_q;
 
   // SRAM simulation initialization
+  function automatic data_t random_init_word();
+    random_init_word = '0;
+    for (int unsigned b = 0; b < DataWidth; b += 32) begin
+      random_init_word = (random_init_word << 32) | data_t'($urandom());
+    end
+  endfunction
+
   data_t init_val[NumWords-1:0];
   initial begin : proc_sram_init
     for (int unsigned i = 0; i < NumWords; i++) begin
-      case (SimInit)
-        "zeros":  init_val[i] = {DataWidth{1'b0}};
-        "ones":   init_val[i] = {DataWidth{1'b1}};
-        "random": init_val[i] = {DataWidth{$urandom()}};
-        default:  init_val[i] = {DataWidth{1'bx}};
+      unique case (SimInit)
+        "zeros":  init_val[i] = '0;
+        "ones":   init_val[i] = '1;
+        "random": init_val[i] = random_init_word();
+        default:  init_val[i] = 'x;
       endcase
     end
   end
