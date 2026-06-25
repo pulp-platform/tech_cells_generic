@@ -28,10 +28,13 @@ for PORTS in 1 2; do
     for WORDS in 1 420 1024; do
       for DWIDTH in 1 42 64; do
         for BYTEWIDTH in 1 8 9; do
-          call_vsim tb_tc_sram -GNumPorts=$PORTS -GLatency=$LATENCY -GNumWords=$WORDS -GDataWidth=$DWIDTH -GByteWidth=$BYTEWIDTH
-       done
+          for SIMINIT in zeros ones random none; do
+            call_vsim tb_tc_sram \
+              -GNumPorts=$PORTS -GLatency=$LATENCY -GNumWords=$WORDS \
+              -GDataWidth=$DWIDTH -GByteWidth=$BYTEWIDTH -GSimInit=$SIMINIT
+          done
+        done
       done
     done
   done
 done
-

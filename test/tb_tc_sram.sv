@@ -53,7 +53,7 @@ module tb_tc_sram #(
 
   // golden model
   data_t           memory [NumWords-1:0];
-  longint unsigned failed_test;
+  longint unsigned failed_test = 0;
 
   // This process drives the requests on the port with random data.
   for (genvar i = 0; i < NumPorts; i++) begin : gen_stimuli
@@ -72,6 +72,21 @@ module tb_tc_sram #(
 
       @(posedge rst_n);
       repeat (10) @(posedge clk);
+
+      // read every initialized word before traffic can overwrite it
+      for (int unsigned j = 0; j < NumWords; j++) begin
+        req[i]   <= #ApplTime 1'b1;
+        we[i]    <= #ApplTime 1'b0;
+        addr[i]  <= #ApplTime addr_t'(j);
+        wdata[i] <= #ApplTime data_t'(0);
+        be[i]    <= #ApplTime be_t'(0);
+        @(posedge clk);
+        req[i]   <= #ApplTime 1'b0;
+        we[i]    <= #ApplTime 1'b0;
+        addr[i]  <= #ApplTime addr_t'(0);
+        wdata[i] <= #ApplTime data_t'(0);
+        be[i]    <= #ApplTime be_t'(0);
+      end
 
       for (int unsigned j = 0; j < NoReq; j++) begin
         stim_write = bit'($urandom());
@@ -115,15 +130,14 @@ module tb_tc_sram #(
   // - At `TestTime` a process is launched on read requests which lives for `Latency` cycles.
   //   This process asserts the expected read output at `TestTime` in the respective cycle.
   initial begin: proc_golden_model
-    failed_test = 0;
+    #0;
     for (int unsigned i = 0; i < NumWords; i++) begin
-      for (int unsigned j = 0; j < DataWidth; j++) begin
-        case (SimInit)
-          "zeros": memory[i][j] = 1'b0;
-          "ones":  memory[i][j] = 1'b1;
-          default: memory[i][j] = 1'bx;
-        endcase
-      end
+      case (SimInit)
+        "zeros":  memory[i] = '0;
+        "ones":   memory[i] = '1;
+        "random": memory[i] = i_tc_sram_dut.init_val[i];
+        default:  memory[i] = 'x;
+      endcase
     end
 
     @(posedge rst_n);
@@ -174,12 +188,89 @@ module tb_tc_sram #(
     end
   endtask : check_read
 
+  initial begin : proc_check_initialization
+    automatic bit random_diff_seen = 1'b0;
+    automatic bit random_zero_seen = 1'b0;
+    automatic bit random_one_seen = 1'b0;
+    automatic data_t init_word;
+
+    #0;
+    for (int unsigned i = 0; i < NumWords; i++) begin
+      init_word = i_tc_sram_dut.init_val[i];
+      case (SimInit)
+        "zeros": begin
+          assert (init_word === '0) else begin
+            $warning("Initial value at word %0d is not zero: %0h", i, init_word);
+            failed_test++;
+          end
+        end
+        "ones": begin
+          assert (init_word === '1) else begin
+            $warning("Initial value at word %0d is not one: %0h", i, init_word);
+            failed_test++;
+          end
+        end
+        "random": begin
+          assert (!$isunknown(init_word)) else begin
+            $warning("Random initial value at word %0d contains unknown bits: %0h", i, init_word);
+            failed_test++;
+          end
+          random_zero_seen |= (init_word !== '1);
+          random_one_seen  |= (init_word !== '0);
+          for (int unsigned j = 32; j < DataWidth; j++) begin
+            if (init_word[j] !== init_word[j-32]) begin
+              random_diff_seen = 1'b1;
+            end
+          end
+        end
+        default: begin
+          assert (init_word === 'x) else begin
+            $warning("Initial value at word %0d is not unknown: %0h", i, init_word);
+            failed_test++;
+          end
+        end
+      endcase
+    end
+
+    if (SimInit == "random" && DataWidth > 32 && NumWords > 1) begin
+      assert (random_diff_seen) else begin
+        $warning("Random initialization repeats the low 32 bits across all initialized words");
+        failed_test++;
+      end
+    end
+    if (SimInit == "random" && (DataWidth > 1 || NumWords > 1)) begin
+      assert (random_zero_seen && random_one_seen) else begin
+        $warning("Random initialization does not contain both 0 and 1 bits across all words");
+        failed_test++;
+      end
+    end
+
+    @(posedge rst_n);
+    #TestTime;
+    for (int unsigned i = 0; i < NumWords; i++) begin
+      if (SimInit == "none") begin
+        assert ($isunknown(i_tc_sram_dut.sram[i])) else begin
+          $warning("SRAM word %0d is not unknown with SimInit none: %0h",
+              i, i_tc_sram_dut.sram[i]);
+          failed_test++;
+        end
+      end else begin
+        assert (i_tc_sram_dut.sram[i] === memory[i]) else begin
+          $warning("SRAM word %0d does not match initial value, expected: %0h, measured: %0h",
+              i, memory[i], i_tc_sram_dut.sram[i]);
+          failed_test++;
+        end
+      end
+    end
+  end
+
   // Stop the simulation at the end.
   initial begin : proc_stop
     @(posedge rst_n);
     wait (&done);
     repeat (10) @(posedge clk);
-    $info("Simulation done, errors: %0d", failed_test);
+    assert (failed_test == 0) else $fatal(1, "Simulation done, errors: %0d", failed_test);
+    $info("Simulation done, errors: 0");
     $stop();
   end
 
