@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.2.14 - 2026-06-26
+### Added
+- `tc_sync`: Move synchronizer cell from common_cells to here
+- `tc_sram_xilinx`: Add `FPGAImplKey` for memory selection
+
 ### Changed
+- `Bender.yml`: Remove the `description` field
 - Waive Verilator linter for lints not matching our code style
+
+### Fixed
+- `tc_sram`: Fix random initialization
 
 ## 0.2.13 - 2023-09-19
 ### Fixed
