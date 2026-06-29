@@ -88,6 +88,11 @@ module tc_sram #(
   addr_t [NumPorts-1:0] r_addr_q;
 
   // SRAM simulation initialization
+  // Keep the `init_val` declaration visible to synthesis.
+  // The random/behavioral initialization is simulation-only and relies on `$urandom`,
+  // which synthesis tools cannot elaborate inside a function body.
+  data_t init_val[NumWords-1:0];
+  // pragma translate_off
   function automatic data_t random_init_word();
     random_init_word = '0;
     for (int unsigned b = 0; b < DataWidth; b += 32) begin
@@ -95,7 +100,6 @@ module tc_sram #(
     end
   endfunction
 
-  data_t init_val[NumWords-1:0];
   initial begin : proc_sram_init
     for (int unsigned i = 0; i < NumWords; i++) begin
       unique case (SimInit)
@@ -106,6 +110,7 @@ module tc_sram #(
       endcase
     end
   end
+  // pragma translate_on
 
   // set the read output if requested
   // The read data at the highest array index is set combinational.
