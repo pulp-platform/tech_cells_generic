@@ -24,7 +24,7 @@ module tc_pad_pwr_mng #(
     input logic                         ret_en_i,
 
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     assign int_io[0] = (ret_en_i == 1'b1) ?  tc_pad_config.rt_en_ah
@@ -38,7 +38,7 @@ module tc_pad_vdd_core #(
     parameter tc_pad_pkg::tc_pad_config_t      tc_pad_config      = tc_pad_pkg::default_tc_pad_config
 ) (
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // void
@@ -51,7 +51,7 @@ module tc_pad_vss_core #(
     parameter tc_pad_pkg::tc_pad_config_t      tc_pad_config      = tc_pad_pkg::default_tc_pad_config
 ) (
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // void
@@ -64,7 +64,7 @@ module tc_pad_vdd_io #(
     parameter tc_pad_pkg::tc_pad_config_t      tc_pad_config      = tc_pad_pkg::default_tc_pad_config
 ) (
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // void
@@ -77,7 +77,7 @@ module tc_pad_vss_io #(
     parameter tc_pad_pkg::tc_pad_config_t      tc_pad_config      = tc_pad_pkg::default_tc_pad_config
 ) (
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // void
@@ -89,7 +89,7 @@ module tc_pad_corner #(
     parameter tc_pad_pkg::tc_pad_config_t tc_pad_config = tc_pad_pkg::default_tc_pad_config
 ) (
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // void
@@ -102,7 +102,7 @@ module tc_pad_bidir #(
     parameter tc_pad_pkg::tc_pad_config_t      tc_pad_config      = tc_pad_pkg::default_tc_pad_config
 ) (
     // pad signal
-    inout logic pad_io,
+    inout wire pad_io,
 
     // input signals
     output logic pad2chip_o,
@@ -120,7 +120,7 @@ module tc_pad_bidir #(
     input logic [(tc_pad_config.ds_w>0 ? tc_pad_config.ds_w-1 : 0):0] drive_strength_i,
 
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // check config for the availability of bidirectional io cells
@@ -183,7 +183,7 @@ module tc_pad_input #(
     parameter tc_pad_pkg::tc_pad_config_t      tc_pad_config      = tc_pad_pkg::default_tc_pad_config
 ) (
     // pad signal
-    inout logic pad_io,
+    inout wire pad_io,
 
     // input signals
     output logic pad2chip_o,
@@ -195,7 +195,7 @@ module tc_pad_input #(
     output logic nand_out_o,
 
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // check config for the availability of only input cells
@@ -253,7 +253,7 @@ module tc_pad_output #(
     parameter tc_pad_pkg::tc_pad_config_t      tc_pad_config      = tc_pad_pkg::default_tc_pad_config
 ) (
     // pad signal
-    inout logic pad_io,
+    inout wire pad_io,
 
     // output signals
     input logic                                                       chip2pad_i,
@@ -262,7 +262,7 @@ module tc_pad_output #(
     input logic [(tc_pad_config.ds_w>0 ? tc_pad_config.ds_w-1 : 0):0] drive_strength_i,
 
     // internal signals
-    inout logic [tc_pad_config.n_int:0] int_io
+    inout wire [tc_pad_config.n_int:0] int_io
 );
 
     // check config for the availability of only output cells
