@@ -10,6 +10,13 @@
 
 // Cells to be used for Xilinx FPGA mappings
 
+// Some primitives require a `SIM_DEVICE` parameter, which can be overwritten
+// with this define. If the specified SIM_DEVICE does not match the target part,
+// a critical warning is generated during FPGA synthesis.
+`ifndef XILINX_SIM_DEVICE
+`define XILINX_SIM_DEVICE "ULTRASCALE"
+`endif
+
 module tc_clk_and2 (
   input  logic clk0_i,
   input  logic clk1_i,
@@ -29,7 +36,6 @@ module tc_clk_buffer (
 
 endmodule
 
-// Disable clock gating on FPGA as it behaves differently than expected
 module tc_clk_gating #(
   /// This paramaeter is a hint for tool/technology specific mappings of this
   /// tech_cell. It indicates wether this particular clk gate instance is
@@ -44,7 +50,19 @@ module tc_clk_gating #(
    output logic clk_o
 );
 
-  assign clk_o = clk_i;
+  localparam string SIM_DEVICE = `XILINX_SIM_DEVICE;
+
+  if (IS_FUNCTIONAL) begin : gen_functional
+    BUFGCE #(
+      .SIM_DEVICE ( SIM_DEVICE )
+    ) i_clk_gate (
+      .I  ( clk_i            ),
+      .CE ( en_i | test_en_i ),
+      .O  ( clk_o            )
+    );
+  end else begin : gen_non_functional
+    assign clk_o = clk_i;
+  end
 
 endmodule
 
