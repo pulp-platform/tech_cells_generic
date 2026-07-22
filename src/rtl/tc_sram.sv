@@ -82,12 +82,23 @@ module tc_sram #(
   output data_t [NumPorts-1:0] rdata_o     // read data
 );
 
+// Synthesis uses an empty, parameterized blackbox instead of the functional model.
+// Support both the standard `SYNTHESIS define and the Bender define.
+`ifdef SYNTHESIS
+  `define TC_GENERIC_SRAM_SYNTHESIS
+`elsif TARGET_SYNTHESIS
+  `define TC_GENERIC_SRAM_SYNTHESIS
+`endif
+
+`ifndef TC_GENERIC_SRAM_SYNTHESIS
   // memory array
   data_t sram [NumWords-1:0];
   // hold the read address when no read access is made
   addr_t [NumPorts-1:0] r_addr_q;
 
   // SRAM simulation initialization
+  data_t init_val[NumWords-1:0];
+  // pragma translate_off
   function automatic data_t random_init_word();
     random_init_word = '0;
     for (int unsigned b = 0; b < DataWidth; b += 32) begin
@@ -95,7 +106,6 @@ module tc_sram #(
     end
   endfunction
 
-  data_t init_val[NumWords-1:0];
   initial begin : proc_sram_init
     for (int unsigned i = 0; i < NumWords; i++) begin
       unique case (SimInit)
@@ -106,6 +116,7 @@ module tc_sram #(
       endcase
     end
   end
+  // pragma translate_on
 
   // set the read output if requested
   // The read data at the highest array index is set combinational.
@@ -250,4 +261,53 @@ module tc_sram #(
 `endif
 `endif
 // pragma translate_on
+`else
+  // Preserve the requested SRAM configuration as instance attributes where
+  // supported, and as resolved parameters of the blackbox in all tools.
+  (* sram_num_words = NumWords, sram_data_width = DataWidth,
+     sram_byte_width = ByteWidth, sram_num_ports = NumPorts,
+     sram_latency = Latency, sram_impl_key = ImplKey *)
+  tc_sram_blackbox #(
+    .NumWords     ( NumWords     ),
+    .DataWidth    ( DataWidth    ),
+    .ByteWidth    ( ByteWidth    ),
+    .NumPorts     ( NumPorts     ),
+    .Latency      ( Latency      ),
+    .SimInit      ( SimInit      ),
+    .PrintSimCfg  ( PrintSimCfg  ),
+    .ImplKey      ( ImplKey      ),
+    .FPGAImplKey  ( FPGAImplKey  )
+  ) i_tc_sram_blackbox (.*);
+`endif
+
+endmodule
+
+// Empty blackbox used by tc_sram when synthesized.
+// Interface matches tc_sram so that the requested macro remains visible.
+(* black_box, syn_black_box = 1 *)
+module tc_sram_blackbox #(
+  parameter int unsigned NumWords     = 32'd1024,
+  parameter int unsigned DataWidth    = 32'd128,
+  parameter int unsigned ByteWidth    = 32'd8,
+  parameter int unsigned NumPorts     = 32'd2,
+  parameter int unsigned Latency      = 32'd1,
+  parameter              SimInit      = "none",
+  parameter bit          PrintSimCfg  = 1'b0,
+  parameter              ImplKey      = "none",
+  parameter              FPGAImplKey  = "auto",
+  parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1,
+  parameter int unsigned BeWidth   = (DataWidth + ByteWidth - 32'd1) / ByteWidth,
+  parameter type         addr_t    = logic [AddrWidth-1:0],
+  parameter type         data_t    = logic [DataWidth-1:0],
+  parameter type         be_t      = logic [BeWidth-1:0]
+) (
+  input  logic                 clk_i,
+  input  logic                 rst_ni,
+  input  logic  [NumPorts-1:0] req_i,
+  input  logic  [NumPorts-1:0] we_i,
+  input  addr_t [NumPorts-1:0] addr_i,
+  input  data_t [NumPorts-1:0] wdata_i,
+  input  be_t   [NumPorts-1:0] be_i,
+  output data_t [NumPorts-1:0] rdata_o
+);
 endmodule
