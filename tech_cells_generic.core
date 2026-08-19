@@ -1,0 +1,18 @@
+CAPI=2:
+
+name : pulp-platform.org::tech_cells_generic:0.2.14
+description: Technology-agnostic cells (clock gates, synchronizers, SRAMs) with behavioral models for RTL simulation
+
+filesets:
+  rtl:
+    files:
+      # Behavioral models, meant for RTL simulation only.
+      - src/rtl/tc_clk.sv
+      - src/rtl/tc_sram.sv
+      - src/rtl/tc_sram_impl.sv
+      - src/rtl/tc_sync.sv
+    file_type : systemVerilogSource
+
+targets:
+  default:
+    filesets : [rtl]
