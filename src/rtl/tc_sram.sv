@@ -145,12 +145,15 @@ module tc_sram #(
         for (int unsigned i = 0; i < NumPorts; i++) begin
           if (req_i[i]) begin
             if (we_i[i]) begin
-              // update value when write is set at clock
+              // update value when write is set at clock, assembling the masked word first so
+              // that the array takes a single delayed assignment
+              automatic data_t sram_wdata = sram[addr_i[i]];
               for (int unsigned j = 0; j < BeWidth; j++) begin
                 if (be_i[i][j]) begin
-                  sram[addr_i[i]][j*ByteWidth+:ByteWidth] <= wdata_i[i][j*ByteWidth+:ByteWidth];
+                  sram_wdata[j*ByteWidth+:ByteWidth] = wdata_i[i][j*ByteWidth+:ByteWidth];
                 end
               end
+              sram[addr_i[i]] <= sram_wdata;
             end else begin
               // otherwise update read address for subsequent non request cycles
               r_addr_q[i] <= addr_i[i];
@@ -186,12 +189,15 @@ module tc_sram #(
         for (int unsigned i = 0; i < NumPorts; i++) begin
           if (req_i[i]) begin
             if (we_i[i]) begin
-              // update value when write is set at clock
+              // update value when write is set at clock, assembling the masked word first so
+              // that the array takes a single delayed assignment
+              automatic data_t sram_wdata = sram[addr_i[i]];
               for (int unsigned j = 0; j < BeWidth; j++) begin
                 if (be_i[i][j]) begin
-                  sram[addr_i[i]][j*ByteWidth+:ByteWidth] <= wdata_i[i][j*ByteWidth+:ByteWidth];
+                  sram_wdata[j*ByteWidth+:ByteWidth] = wdata_i[i][j*ByteWidth+:ByteWidth];
                 end
               end
+              sram[addr_i[i]] <= sram_wdata;
             end else begin
               // otherwise update read address for subsequent non request cycles
               r_addr_q[i] <= addr_i[i];
