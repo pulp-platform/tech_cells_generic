@@ -13,6 +13,8 @@ tech_cells_rtl:
     src/deprecated/pulp_pwr_cells.sv,
     src/rtl/tc_clk.sv,
     src/rtl/tc_sram.sv,
+    src/rtl/tc_pad_pkg.sv,
+    src/rtl/tc_pad.sv,
     src/tc_pwr.sv,
   ]
 
